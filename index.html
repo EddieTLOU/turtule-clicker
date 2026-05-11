@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turtle Clicker</title>
+    <title>TurtleClicker</title>
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
     <style>
         :root {
-            --dark-green: #14532d;
-            --mid-green: #166534;
+            --dark-green: #064e3b;
+            --mid-green: #14532d;
             --bright-green: #22c55e;
-            --lime: #84cc16;
+            --lime: #a3e635;
             --white: #f8fafc;
         }
 
@@ -34,7 +34,6 @@
 
         .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; align-items: center; }
 
-        /* Strictly Green Buttons */
         .green-btn {
             padding: 20px 60px; font-size: 28px; font-family: 'Luckiest Guy';
             background: var(--bright-green); color: white;
@@ -44,17 +43,17 @@
         }
         .green-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--dark-green); }
 
-        #code-section { display: none; margin-top: 20px; text-align: center; }
+        #code-section { display: none; margin-top: 20px; }
         input { 
             padding: 12px; border-radius: 10px; border: 3px solid var(--bright-green); 
             font-family: 'Luckiest Guy'; font-size: 20px; text-align: center;
-            background: var(--dark-green); color: white;
+            background: #022c22; color: white;
         }
 
         /* --- OWNER TAB --- */
         #owner-tab {
             position: fixed; top: 0; left: 100%; width: 100vw; height: 100vh;
-            background: radial-gradient(circle, #065f46, #064e3b); z-index: 600; 
+            background: #022c22; z-index: 600; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             transition: 0.5s ease;
         }
@@ -69,10 +68,10 @@
         .sidebar { background: rgba(0,0,0,0.3); padding: 25px; border: 4px solid var(--mid-green); }
 
         #turtle-container {
-            width: 450px; height: 450px; cursor: pointer;
+            width: 480px; height: 480px; cursor: pointer;
             transition: transform 0.05s ease;
         }
-        #turtle-container:active { transform: scale(0.9); }
+        #turtle-container:active { transform: scale(0.92); }
 
         .stat-display { font-size: 70px; color: var(--lime); text-shadow: 4px 4px 0px #000; }
 
@@ -87,64 +86,67 @@
             position: absolute; bottom: 20px; font-size: 40px; 
             color: var(--lime); display: none; text-shadow: 2px 2px #000;
         }
+
+        #evo-pop {
+            position: absolute; color: var(--lime); font-size: 50px;
+            pointer-events: none; opacity: 0; transform: translateY(0);
+            transition: 1s;
+        }
     </style>
 </head>
 <body>
 
-<!-- Audio - Ensure files match these names -->
 <audio id="bg-music" src="music.mp3" loop></audio>
 <audio id="click-sfx" src="click.mp3" preload="auto"></audio>
 
-<!-- Home Menu -->
 <div id="home-menu">
-    <h1>Turtle Clicker</h1>
+    <h1>TurtleClicker</h1>
     <div class="btn-group">
         <button class="green-btn" onclick="goTo('game')">START GAME</button>
-        
-        <!-- Toggle Codes Button -->
         <button class="green-btn" style="font-size: 20px;" onclick="toggleCodes()">CODES</button>
-        
         <div id="code-section">
             <input type="text" id="code-in" placeholder="ENTER CODE">
-            <button class="green-btn" style="padding: 10px 30px; font-size: 18px; margin-top:10px;" onclick="checkCode()">SUBMIT</button>
+            <button class="green-btn" style="padding: 10px 30px; font-size: 18px; margin-top:10px;" onclick="checkCode()">OK</button>
         </div>
-
-        <button id="admin-btn" class="green-btn" style="display:none; background: #059669;" onclick="goTo('owner')">OWNER MENU</button>
+        <button id="admin-btn" class="green-btn" style="display:none; border-color:var(--lime);" onclick="goTo('owner')">OWNER MENU</button>
     </div>
 </div>
 
-<!-- Owner Tab -->
 <div id="owner-tab">
-    <h1 style="color: white;">ADMIN CONSOLE</h1>
+    <h1>ADMIN PANEL</h1>
     <div class="btn-group">
         <button class="green-btn" onclick="vitality += 100000; update();">ADD 100K VITALITY</button>
-        <button class="green-btn" onclick="clickPower += 5000; update();">GOD CLICKER</button>
-        <button class="green-btn" style="background: #ef4444;" onclick="goTo('menu')">BACK TO MENU</button>
+        <button class="green-btn" onclick="clickPower += 5000; update();">MAX CLICKS</button>
+        <button class="green-btn" style="background: #b91c1c;" onclick="goTo('menu')">BACK</button>
     </div>
 </div>
 
-<!-- Main Game -->
 <div id="game-screen">
     <div class="sidebar">
         <h2 style="color:var(--lime); text-align:center;">SHOP</h2>
         <div id="upg-1" class="item unlocked" onclick="buy('click')">🥬 BETTER FOOD<br>Cost: <span id="c-cost">10</span></div>
         <div id="upg-2" class="item unlocked" onclick="buy('passive')">☀️ SUNLIGHT<br>Cost: <span id="p-cost">50</span></div>
+        <div id="upg-3" class="item" onclick="buy('auto')">🤖 AUTO-SHELL<br>Cost: <span id="a-cost">1000</span></div>
     </div>
 
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
         <button class="green-btn" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; font-size: 14px;" onclick="goTo('menu')">HOME</button>
         
+        <div id="evo-pop">NEW CHARACTER!</div>
         <div class="stat-display" id="v-count">0</div>
+        <div style="font-size: 24px; color: var(--bright-green);" id="stage-name">Character: Egg</div>
+        
         <div id="turtle-container" onclick="handleTurtleClick()">
             <div id="turtle-art"></div>
         </div>
+        
         <div id="well-done">WELL DONE BRO! 🐢</div>
     </div>
 
     <div class="sidebar">
         <h2 style="color:var(--lime); text-align:center;">STATS</h2>
-        <p>AGE: <span id="age-num" style="color:var(--gold)">0</span> YEARS</p>
-        <p>V/SEC: <span id="vps" style="color:var(--bright-green)">0</span></p>
+        <p>AGE: <span id="age-num">0</span></p>
+        <p>V/SEC: <span id="vps">0</span></p>
     </div>
 </div>
 
@@ -152,25 +154,16 @@
     let vitality = 0;
     let clickPower = 1;
     let passivePower = 0;
-    let stage = 0;
-    let costs = { click: 10, passive: 50 };
+    let currentStage = 0;
+    let costs = { click: 10, passive: 50, auto: 1000 };
 
-    const graphics = [
-        // Egg
-        `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="30" ry="40" fill="#fefce8" stroke="#d1d5db" stroke-width="2"/></svg>`,
-        // Hatchling
-        `<svg viewBox="0 0 100 100">
-            <path d="M30 70 L20 85 M70 70 L80 85 M30 30 L20 15 M70 30 L80 15" stroke="#166534" stroke-width="6" stroke-linecap="round"/>
-            <path d="M25 50 Q50 10 75 50 Q50 90 25 50" fill="#15803d" stroke="#064e3b" stroke-width="2"/>
-            <circle cx="80" cy="50" r="12" fill="#22c55e" stroke="#064e3b"/>
-            <circle cx="85" cy="46" r="2" fill="black"/>
-        </svg>`,
-        // Ancient
-        `<svg viewBox="0 0 100 100">
-            <path d="M20 80 L10 95 M80 80 L90 95 M20 20 L10 5 M80 20 L90 5" stroke="#064e3b" stroke-width="8"/>
-            <path d="M15 50 Q50 -10 85 50 Q50 110 15 50" fill="#064e3b" stroke="#facc15" stroke-width="3"/>
-            <circle cx="88" cy="50" r="15" fill="#15803d"/>
-        </svg>`
+    // More diverse character designs
+    const characterData = [
+        { name: "Egg", goal: 0, art: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="30" ry="40" fill="#fefce8" stroke="#d1d5db" stroke-width="2"/></svg>` },
+        { name: "Green Scout", goal: 50, art: `<svg viewBox="0 0 100 100"><path d="M20 70 L10 85 M80 70 L90 85" stroke="#166534" stroke-width="6"/><path d="M25 50 Q50 10 75 50 Q50 90 25 50" fill="#22c55e" stroke="#064e3b"/><circle cx="85" cy="50" r="10" fill="#22c55e"/></svg>` },
+        { name: "Armored Juvenile", goal: 500, art: `<svg viewBox="0 0 100 100"><path d="M15 50 Q50 0 85 50 Q50 100 15 50" fill="#15803d" stroke="#facc15" stroke-width="2"/><rect x="40" y="30" width="20" height="20" fill="#facc15" opacity="0.3"/><circle cx="90" cy="50" r="12" fill="#15803d"/></svg>` },
+        { name: "Spiked Snapper", goal: 5000, art: `<svg viewBox="0 0 100 100"><path d="M20 50 L50 0 L80 50 L50 100 Z" fill="#064e3b" stroke="#ef4444" stroke-width="2"/><path d="M45 20 L55 20 M45 80 L55 80" stroke="white" stroke-width="4"/><circle cx="85" cy="50" r="15" fill="#064e3b"/></svg>` },
+        { name: "Island Deity", goal: 20000, art: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#065f46" stroke="#fbbf24" stroke-width="4"/><path d="M30 30 L70 70 M30 70 L70 30" stroke="#fbbf24" stroke-width="2"/><circle cx="95" cy="50" r="18" fill="#065f46"/></svg>` }
     ];
 
     function goTo(scr) {
@@ -179,27 +172,23 @@
         if(scr === 'game') document.getElementById('bg-music').play();
     }
 
-    // Toggle Codes Function
     function toggleCodes() {
-        const section = document.getElementById('code-section');
-        section.style.display = (section.style.display === 'block') ? 'none' : 'block';
+        const s = document.getElementById('code-section');
+        s.style.display = (s.style.display === 'block') ? 'none' : 'block';
     }
 
     function checkCode() {
         if(document.getElementById('code-in').value.toUpperCase() === "OWNER123") {
             document.getElementById('admin-btn').style.display = 'block';
-            toggleCodes(); // Closes after success
+            toggleCodes();
             alert("OWNER ACCESS GRANTED");
-        } else {
-            alert("INVALID CODE");
         }
     }
 
     function handleTurtleClick() {
         vitality += clickPower;
         const sfx = document.getElementById('click-sfx');
-        sfx.currentTime = 0; 
-        sfx.play();
+        sfx.currentTime = 0; sfx.play();
         update();
     }
 
@@ -207,7 +196,8 @@
         if(vitality >= costs[type]) {
             vitality -= costs[type];
             if(type === 'click') { clickPower += 2; costs.click *= 1.8; }
-            else { passivePower += 1; costs.passive *= 2; }
+            else if(type === 'passive') { passivePower += 1; costs.passive *= 2; }
+            else { passivePower += 15; costs.auto *= 2.5; }
             update();
         }
     }
@@ -218,14 +208,34 @@
         document.getElementById('age-num').innerText = Math.floor(vitality / 100);
         document.getElementById('c-cost').innerText = Math.floor(costs.click);
         document.getElementById('p-cost').innerText = Math.floor(costs.passive);
+        document.getElementById('a-cost').innerText = Math.floor(costs.auto);
 
         if(vitality >= 15000) document.getElementById('well-done').style.display = 'block';
-        
-        if(vitality >= 1000) stage = 2;
-        else if(vitality >= 100) stage = 1;
-        else stage = 0;
+        if(vitality >= 1000) document.getElementById('upg-3').classList.add('unlocked');
 
-        document.getElementById('turtle-art').innerHTML = graphics[stage];
+        // Check for character evolution
+        for(let i = characterData.length - 1; i >= 0; i--) {
+            if(vitality >= characterData[i].goal) {
+                if(currentStage !== i) {
+                    currentStage = i;
+                    triggerEvoEffect();
+                }
+                break;
+            }
+        }
+
+        document.getElementById('turtle-art').innerHTML = characterData[currentStage].art;
+        document.getElementById('stage-name').innerText = "Character: " + characterData[currentStage].name;
+    }
+
+    function triggerEvoEffect() {
+        const pop = document.getElementById('evo-pop');
+        pop.style.opacity = "1";
+        pop.style.transform = "translateY(-100px)";
+        setTimeout(() => {
+            pop.style.opacity = "0";
+            pop.style.transform = "translateY(0)";
+        }, 1000);
     }
 
     setInterval(() => { if(passivePower > 0) { vitality += (passivePower / 10); update(); } }, 100);
