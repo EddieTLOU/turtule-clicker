@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TurtleClicker</title>
+    <title>TurtleClicker: Eternal Clover</title>
     
     <!-- FAVICON LINK - Ensure Untitled.png is in the same folder -->
     <link rel="icon" type="image/png" href="Untitled.png">
@@ -17,6 +17,7 @@
             --lime: #a3e635;
             --white: #f8fafc;
             --gold: #facc15;
+            --clover-green: #15803d;
         }
 
         body, html {
@@ -25,6 +26,10 @@
             background-color: var(--dark-green);
             color: var(--white); overflow: hidden;
         }
+
+        /* --- UI UTILITIES --- */
+        .hidden { display: none !important; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
 
         /* --- HOME MENU & DOTS --- */
         #home-menu {
@@ -37,7 +42,7 @@
 
         .dot {
             position: absolute; background: var(--bright-green);
-            border-radius: 50%; opacity: 0.3; pointer-events: none;
+            border-radius: 50%; opacity: 0.2; pointer-events: none;
             animation: float 8s infinite linear;
         }
 
@@ -46,30 +51,7 @@
             to { transform: translateY(-10vh); }
         }
 
-        /* --- CLICK PARTICLES --- */
-        .particle {
-            position: absolute; pointer-events: none;
-            color: var(--lime); font-size: 24px; font-weight: bold;
-            animation: rise 0.8s ease-out forwards; z-index: 100;
-        }
-
-        @keyframes rise {
-            to { transform: translateY(-100px); opacity: 0; }
-        }
-
-        /* --- GOLDEN CLOVER --- */
-        #clover {
-            position: absolute; width: 60px; height: 60px;
-            background: var(--gold); border-radius: 10px;
-            display: none; cursor: pointer; z-index: 80;
-            box-shadow: 0 0 20px var(--gold);
-            animation: pulse 1s infinite alternate;
-            display: flex; align-items: center; justify-content: center; font-size: 30px;
-        }
-
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }
-
-        /* --- LAYOUT --- */
+        /* --- GAME SCREEN LAYOUT --- */
         #game-screen {
             display: grid; width: 100vw; height: 100vh;
             grid-template-columns: 320px 1fr 320px;
@@ -87,41 +69,82 @@
         }
         .green-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 var(--dark-green); }
 
+        /* --- TURTLE & CLICKING --- */
         #turtle-container {
             width: 450px; height: 450px; cursor: pointer;
             transition: transform 0.05s ease; position: relative;
         }
         #turtle-container:active { transform: scale(0.92); }
 
+        .particle {
+            position: absolute; pointer-events: none;
+            color: var(--lime); font-size: 24px; font-weight: bold;
+            animation: rise 0.8s ease-out forwards; z-index: 100;
+        }
+
+        @keyframes rise {
+            to { transform: translateY(-100px); opacity: 0; }
+        }
+
         .stat-display { font-size: 80px; color: var(--lime); text-shadow: 5px 5px 0px #000; margin: 0; }
         
         #multiplier-tag {
-            color: var(--gold); font-size: 20px; display: none;
-            background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px;
+            color: var(--gold); font-size: 22px; display: none;
+            background: rgba(0,0,0,0.7); padding: 8px 20px; border-radius: 20px;
+            border: 2px solid var(--gold); animation: pulsingMultiplier 1s infinite alternate;
         }
 
+        @keyframes pulsingMultiplier { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+        /* --- THE CLOVER (NEW SYSTEMS) --- */
+        #clover {
+            position: absolute; width: 60px; height: 60px;
+            background: var(--gold); border-radius: 10px;
+            display: none; cursor: pointer; z-index: 80;
+            box-shadow: 0 0 25px var(--gold);
+            animation: pulseClover 1s infinite alternate;
+            display: flex; align-items: center; justify-content: center; font-size: 30px;
+        }
+
+        @keyframes pulseClover { from { transform: scale(1); } to { transform: scale(1.2) rotate(10deg); } }
+
+        #clover-progress-container {
+            margin-top: 10px; width: 100%; height: 20px;
+            background: rgba(0,0,0,0.5); border-radius: 10px;
+            border: 2px solid var(--clover-green); overflow: hidden;
+            display: none; /* Only show when boost active */
+        }
+        #clover-progress-bar {
+            height: 100%; width: 100%; background: var(--gold);
+            box-shadow: 0 0 10px var(--gold);
+            transition: width 0.1s linear;
+        }
+
+        .upgrade-clover-panel {
+            margin-top: 25px; padding: 15px; background: rgba(21, 128, 61, 0.3);
+            border-radius: 15px; border: 2px solid var(--clover-green);
+        }
+        .clover-stat { font-size: 16px; opacity: 0.9; margin: 5px 0; }
+
+        /* --- SHOP --- */
         .item {
             background: var(--mid-green); padding: 15px; margin-bottom: 15px;
             border-radius: 15px; border: 3px solid var(--bright-green);
             cursor: pointer; display: none;
         }
         .item.unlocked { display: block; }
+        .item:hover { border-color: var(--lime); background: #1a743a; }
 
-        /* Small Audio Player Style */
-        #music-player {
-            margin-top: 20px; width: 100%; height: 30px; 
-            outline: none; opacity: 0.6;
-        }
-        #music-player::-webkit-media-controls-panel { background-color: var(--dark-green); }
-        #music-player::-webkit-media-controls-current-time-display,
-        #music-player::-webkit-media-controls-time-remaining-display { color: var(--lime); }
+        /* Audio controls */
+        #music-player { margin-top: 20px; width: 100%; opacity: 0.6; }
     </style>
 </head>
 <body>
 
-<!-- Audio Files - Make sure these exist in your folder! -->
+<!-- Audio Files - Make sure these exist! -->
 <audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
 <audio id="click-sfx" src="click.mp3" preload="auto"></audio>
+<audio id="boost-sfx" src="boost.mp3" preload="auto"></audio>
 
 <div id="home-menu">
     <h1 style="font-size: 100px; color: var(--lime); text-shadow: 6px 6px 0px #000;">TurtleClicker</h1>
@@ -137,7 +160,8 @@
 </div>
 
 <div id="game-screen">
-    <div id="clover" onclick="activateClover()">🍀</div>
+    <!-- The Lucky Clover Entity -->
+    <div id="clover" class="hidden" onclick="activateClover()">🍀</div>
 
     <div class="sidebar">
         <h2 style="color:var(--lime); text-align:center;">UPGRADES</h2>
@@ -150,6 +174,12 @@
         <button class="green-btn" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; font-size: 14px;" onclick="goTo('menu')">HOME</button>
         
         <div id="multiplier-tag">2X BOOST ACTIVE!</div>
+        
+        <!-- Multiplier Progress Bar -->
+        <div id="clover-progress-container">
+            <div id="clover-progress-bar"></div>
+        </div>
+
         <div class="stat-display" id="v-count">0</div>
         <div id="next-evo-tracker" style="color:var(--lime); margin-bottom:10px;">Next Evo: <span id="clicks-left">50</span></div>
 
@@ -164,10 +194,16 @@
         <h2 style="color:var(--lime); text-align:center;">STATS</h2>
         <p>TOTAL AGE: <span id="age-num">0</span></p>
         <p>V/SEC: <span id="vps">0</span></p>
-        <hr border="1" color="#14532d">
-        <p style="font-size:14px; opacity:0.7;">Tip: Catch the Lucky Clover for 2x gains!</p>
         
-        <!-- Music Player added back into stats sidebar -->
+        <!-- Clover Specific Stats and Upgrades Panel -->
+        <div class="upgrade-clover-panel">
+            <h3 style="color:var(--gold); text-align:center; margin-top:0;">CLOVER MASTERY</h3>
+            <p class="clover-stat">Current Duration: <span id="mastery-duration">30</span>s</p>
+            <p class="clover-stat">Current Spawn Rate: <span id="mastery-freq">45</span>s</p>
+            <p class="clover-stat">Total Collected: <span id="mastery-total">0</span></p>
+            <button class="green-btn unlocked" id="buy-mastery" style="width:100%; padding:10px; font-size:18px; margin-top:10px;" onclick="upgradeCloverMastery()">UPGRADE<br>Cost: <span id="m-cost">5</span></button>
+        </div>
+        
         <audio id="music-player" controls>
             <source src="music.mp3" type="audio/mpeg">
         </audio>
@@ -178,18 +214,43 @@
 <div id="owner-tab" style="position:fixed; top:0; left:100%; width:100vw; height:100vh; background:#022c22; z-index:600; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:0.5s;">
     <h1>ADMIN MODS</h1>
     <button class="green-btn" onclick="vitality += 500000; update();">GIVE 500K</button><br>
+    <button class="green-btn" onclick="totalCloversCollected += 10; update();">GIVE 10 CLOVERS</button><br>
     <button class="green-btn" style="background:#b91c1c" onclick="goTo('menu')">CLOSE</button>
 </div>
 
 <script>
+    /* -----------------------------------------------------------
+       GLOBAL VARIABLES & STATE
+       ----------------------------------------------------------- */
     let vitality = 0;
-    let totalClicksNeededToEvolve = 0; // Tracks clicks for precise evolution display
     let clickPower = 1;
     let passivePower = 0;
+    let stage = 0;
+    
+    // --- The Core Clover State ---
     let multiplier = 1;
-    let currentStage = 0;
-    let costs = { click: 10, passive: 50, auto: 2000 };
+    let boostTimer = 0;
+    let cloverActive = false;
+    let cloverSpawnInterval = null;
+    let boostProgressInterval = null;
+    let totalCloversCollected = 0;
 
+    // --- Clover Mastery Upgrades ---
+    let cloverBaseDuration = 30; // Seconds the boost lasts
+    let cloverBaseSpawnFreq = 45; // Seconds between spawns
+    let cloverMasteryLevel = 1;
+    let cloverMasteryCost = 5; // Cost is in CLOVERS collected, not Vitality
+
+    // --- Shop Costs ---
+    let costs = {
+        click: 10,
+        passive: 50,
+        auto: 2000
+    };
+
+    /* -----------------------------------------------------------
+       EVOLUTION DATA
+       ----------------------------------------------------------- */
     const characterData = [
         { name: "Egg", goal: 0, art: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="30" ry="40" fill="#fefce8" stroke="#ccc"/></svg>` },
         { name: "Hatchling", goal: 50, art: `<svg viewBox="0 0 100 100"><path d="M20 70 L10 85 M80 70 L90 85" stroke="#166534" stroke-width="6"/><circle cx="50" cy="50" r="30" fill="#22c55e"/><circle cx="82" cy="50" r="10" fill="#22c55e"/></svg>` },
@@ -197,121 +258,24 @@
         { name: "Ancient One", goal: 10000, art: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#065f46" stroke="#fbbf24" stroke-width="5"/><circle cx="95" cy="50" r="18" fill="#065f46"/></svg>` }
     ];
 
+    /* -----------------------------------------------------------
+       UI & INITIALIZATION
+       ----------------------------------------------------------- */
     function createDots() {
         const menu = document.getElementById('home-menu');
         for(let i=0; i<40; i++) {
-            let d = document.createElement('div'); d.className = 'dot';
+            let d = document.createElement('div');
+            d.className = 'dot';
             d.style.width = d.style.height = Math.random()*12+4+'px';
-            d.style.left = Math.random()*100+'vw'; d.style.animationDelay = Math.random()*8+'s';
+            d.style.left = Math.random()*100+'vw';
+            d.style.animationDelay = Math.random()*8+'s';
             menu.appendChild(d);
         }
-    }
-
-    function handleTurtleClick(e) {
-        let gain = clickPower * multiplier;
-        vitality += gain;
-        totalClicksNeededToEvolve += 1; // Update precise click tracker
-        
-        // Spawn text particle at mouse location
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.innerText = "+" + gain;
-        p.style.left = e.clientX + 'px';
-        p.style.top = e.clientY + 'px';
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), 800);
-
-        document.getElementById('click-sfx').currentTime = 0;
-        document.getElementById('click-sfx').play();
-        update();
-    }
-
-    function spawnClover() {
-        const c = document.getElementById('clover');
-        c.style.display = 'flex';
-        c.style.left = Math.random()*80 + 'vw';
-        c.style.top = Math.random()*80 + 'vh';
-        setTimeout(() => c.style.display = 'none', 5000);
-    }
-
-    function activateClover() {
-        multiplier = 2;
-        document.getElementById('multiplier-tag').style.display = 'block';
-        document.getElementById('clover').style.display = 'none';
-        setTimeout(() => {
-            multiplier = 1;
-            document.getElementById('multiplier-tag').style.display = 'none';
-        }, 30000);
-    }
-
-    function buy(type) {
-        if(vitality >= costs[type]) {
-            vitality -= costs[type];
-            if(type === 'click') { clickPower += 2; costs.click *= 1.8; }
-            else if(type === 'passive') { passivePower += 1; costs.passive *= 2; }
-            else { passivePower += 20; costs.auto *= 2.5; }
-            update();
-        }
-    }
-
-    function update() {
-        document.getElementById('v-count').innerText = Math.floor(vitality).toLocaleString();
-        document.getElementById('vps').innerText = passivePower;
-        document.getElementById('age-num').innerText = Math.floor(vitality/100);
-        document.getElementById('c-cost').innerText = Math.floor(costs.click);
-        document.getElementById('p-cost').innerText = Math.floor(costs.passive);
-        document.getElementById('a-cost').innerText = Math.floor(costs.auto);
-
-        if(vitality >= 1500) document.getElementById('upg-auto').classList.add('unlocked');
-
-        // Evolution Check
-        for(let i=characterData.length-1; i>=0; i--) {
-            if(vitality >= characterData[i].goal) { 
-                currentStage = i; 
-                // Reset precise click counter to match the new stage goal
-                if(i < characterData.length - 1 && vitality < characterData[i+1].goal) {
-                    // This creates a smooth countdown regardless of multipliers
-                    let stageVitalityProgress = vitality - characterData[i].goal;
-                    // Approximates clicks needed based on current click power. Not 100% accurate, but clear.
-                    // For truly precise *clicks* regardless of power, you'd need a separate tracker,
-                    // but trackers that use 'gain' are more relevant to gameplay.
-                }
-                break; 
-            }
-        }
-
-        // Updated Evo Tracker Logic (Precise 'clicks left' based on vitality gain needed)
-        let tracker = document.getElementById('next-evo-tracker');
-        if(currentStage < characterData.length - 1) {
-            let vitalityNeeded = characterData[currentStage + 1].goal - Math.floor(vitality);
-            
-            // This is the simplest calculation: (Vitality Needed / Power). 
-            // It gets more precise as power changes.
-            let clicksLeft = Math.ceil(vitalityNeeded / (clickPower * multiplier));
-            
-            // Prevent display of negative or extreme numbers just as goal is reached
-            if (clicksLeft < 1) clicksLeft = 1; 
-
-            document.getElementById('clicks-left').innerText = clicksLeft;
-            tracker.style.display = "block"; // Ensure it's visible
-        } else {
-            // Display 'MAX FORM' when at the last character
-            tracker.innerHTML = "MAX FORM REACHED"; 
-        }
-
-        document.getElementById('turtle-art').innerHTML = characterData[currentStage].art;
-        document.getElementById('stage-name').innerText = "Character: " + characterData[currentStage].name;
     }
 
     function goTo(scr) {
         document.getElementById('home-menu').style.transform = (scr === 'game' || scr === 'owner') ? 'translateY(-100%)' : 'translateY(0)';
         document.getElementById('owner-tab').style.left = (scr === 'owner') ? '0' : '100%';
-        
-        // Auto-play music when game starts, if it's paused
-        if(scr === 'game') {
-            const player = document.getElementById('music-player');
-            if(player.paused) player.play();
-        }
     }
 
     function toggleCodes() {
@@ -326,9 +290,241 @@
         }
     }
 
+    /* -----------------------------------------------------------
+       CORE GAMEPLAY MECHANICS
+       ----------------------------------------------------------- */
+    function handleTurtleClick(e) {
+        let gain = clickPower * multiplier;
+        vitality += gain;
+        
+        // Visual Juice: Spawn particle text
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.innerText = "+" + gain;
+        p.style.left = e.clientX + 'px';
+        p.style.top = e.clientY + 'px';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 800);
+
+        // Sound Juice: Play and Reset SFX
+        const sfx = document.getElementById('click-sfx');
+        sfx.currentTime = 0;
+        sfx.play().catch(e => console.log("Sound ready")); // Fix browsers blocking audio
+
+        update();
+    }
+
+    function buy(type) {
+        if(vitality >= costs[type]) {
+            vitality -= costs[type];
+            if(type === 'click') { clickPower += 2; costs.click *= 1.8; }
+            else if(type === 'passive') { passivePower += 1; costs.passive *= 2; }
+            else { passivePower += 20; costs.auto *= 2.5; }
+            update();
+        } else {
+            alert("Need more Vitality, Bro!");
+        }
+    }
+
+    /* -----------------------------------------------------------
+       THE CLOVER OVERLOAD SYSTEM
+       ----------------------------------------------------------- */
+    
+    // Spawns the physical clover on screen
+    function spawnClover() {
+        // Don't spawn if boost is already running or one is already on screen
+        if (multiplier > 1 || cloverActive) return;
+
+        cloverActive = true;
+        const c = document.getElementById('clover');
+        c.classList.remove('hidden');
+        c.style.display = 'flex'; // Explicit show
+        
+        // Randomized Position within acceptable game screen bounds
+        c.style.left = Math.random()*80 + 10 + 'vw';
+        c.style.top = Math.random()*60 + 20 + 'vh';
+        
+        // Clover despauns after 5 seconds if missed
+        setTimeout(() => {
+            if (cloverActive) {
+                despawnClover();
+                console.log("Clover missed.");
+            }
+        }, 5000);
+    }
+
+    // Safely removes the clover from screen
+    function despawnClover() {
+        const c = document.getElementById('clover');
+        c.classList.add('hidden');
+        c.style.display = 'none';
+        cloverActive = false;
+    }
+
+    // Triggered when the player actually clicks the clover
+    function activateClover() {
+        if (!cloverActive) return; // Prevent double-clicks
+
+        despawnClover();
+        
+        totalCloversCollected += 1;
+        document.getElementById('boost-sfx').play();
+
+        multiplier = 2; // Activate 2x Boost
+        document.getElementById('multiplier-tag').style.display = 'block';
+        document.getElementById('clover-progress-container').style.display = 'block';
+
+        // Initialize the countdown timer
+        boostTimer = cloverBaseDuration;
+        startBoostProgressBar(); // Start the visual countdown
+
+        // Boost lasts for the defined duration
+        setTimeout(() => {
+            deactivateClover();
+        }, cloverBaseDuration * 1000);
+        
+        update();
+    }
+
+    // Visual handler for the boost progress bar
+    function startBoostProgressBar() {
+        clearInterval(boostProgressInterval);
+        
+        const bar = document.getElementById('clover-progress-bar');
+        bar.style.width = '100%';
+        
+        // Smoothly drain the bar using a faster interval
+        let timeRemaining = cloverBaseDuration;
+        boostProgressInterval = setInterval(() => {
+            timeRemaining -= 0.1; // Reduce by 100ms
+            let percent = (timeRemaining / cloverBaseDuration) * 100;
+            bar.style.width = percent + '%';
+            
+            if (timeRemaining <= 0) {
+                clearInterval(boostProgressInterval);
+            }
+        }, 100);
+    }
+
+    // Boost expiration
+    function deactivateClover() {
+        multiplier = 1;
+        document.getElementById('multiplier-tag').style.display = 'none';
+        document.getElementById('clover-progress-container').style.display = 'none';
+        clearInterval(boostProgressInterval);
+        update();
+        console.log("Boost expired.");
+    }
+
+    /* -----------------------------------------------------------
+       CLOVER MASTERY & UPGRADES
+       ----------------------------------------------------------- */
+    function upgradeCloverMastery() {
+        if(totalCloversCollected >= cloverMasteryCost) {
+            // Spend Clovers, not vitality!
+            totalCloversCollected -= cloverMasteryCost;
+            
+            // Apply Upgrade Effects
+            cloverMasteryLevel += 1;
+            cloverBaseDuration += 5; // Boost lasts 5s longer
+            cloverBaseSpawnFreq -= 2; // Clover spawns 2s sooner
+            
+            // Limit minimum spawn rate to avoid constant spawning (e.g., 10s minimum)
+            if (cloverBaseSpawnFreq < 10) cloverBaseSpawnFreq = 10;
+            
+            // Mastery cost increases
+            cloverMasteryCost = Math.floor(cloverMasteryCost * 1.5 + 2);
+            
+            // Crucial: Restart the spawner with the new faster frequency!
+            startCloverSpawner(); 
+            
+            update();
+        } else {
+            alert("Need more Lucky Clovers! Catch them first.");
+        }
+    }
+
+    // Handles the infinite spawner loop
+    function startCloverSpawner() {
+        clearInterval(cloverSpawnInterval);
+        
+        // Spawn right away when game starts
+        spawnClover(); 
+        
+        // Set the loop based on the new Mastery Frequency
+        cloverSpawnInterval = setInterval(spawnClover, cloverBaseSpawnFreq * 1000);
+    }
+
+    /* -----------------------------------------------------------
+       GAME LOOP & UPDATE INTERFACE
+       ----------------------------------------------------------- */
+    function update() {
+        // Standard Vitality Stats (formatted with commas)
+        document.getElementById('v-count').innerText = Math.floor(vitality).toLocaleString();
+        document.getElementById('vps').innerText = passivePower * multiplier;
+        document.getElementById('age-num').innerText = Math.floor(vitality/100);
+        
+        // Shop Costs
+        document.getElementById('c-cost').innerText = Math.floor(costs.click);
+        document.getElementById('p-cost').innerText = Math.floor(costs.passive);
+        document.getElementById('a-cost').innerText = Math.floor(costs.auto);
+
+        // Shop Unlock Logic
+        if(vitality >= 1500) document.getElementById('upg-auto').classList.add('unlocked');
+
+        // Clover Mastery Stats and Costs
+        document.getElementById('mastery-duration').innerText = cloverBaseDuration;
+        document.getElementById('mastery-freq').innerText = cloverBaseSpawnFreq;
+        document.getElementById('mastery-total').innerText = totalCloversCollected;
+        document.getElementById('m-cost').innerText = cloverMasteryCost;
+
+        // Mastery Button Unlock logic (only if you have enough Clovers)
+        if (totalCloversCollected < cloverMasteryCost) {
+            document.getElementById('buy-mastery').style.opacity = 0.5;
+        } else {
+            document.getElementById('buy-mastery').style.opacity = 1;
+        }
+
+        // Evolution Check
+        for(let i=characterData.length-1; i>=0; i--) {
+            if(vitality >= characterData[i].goal) { 
+                currentStage = i; 
+                break; 
+            }
+        }
+
+        // Updated Evo Tracker Logic (Precise 'clicks left' based on gain needed)
+        let tracker = document.getElementById('next-evo-tracker');
+        if(currentStage < characterData.length - 1) {
+            let vitalityNeeded = characterData[currentStage + 1].goal - Math.floor(vitality);
+            
+            // Simple (Vitality Needed / Power) calculation
+            let clicksLeft = Math.ceil(vitalityNeeded / (clickPower * multiplier));
+            if (clicksLeft < 1) clicksLeft = 1; 
+
+            document.getElementById('clicks-left').innerText = clicksLeft;
+            tracker.style.display = "block";
+        } else {
+            tracker.innerText = "MAX FORM REACHED"; 
+        }
+
+        // Apply Character Art and Name
+        document.getElementById('turtle-art').innerHTML = characterData[currentStage].art;
+        document.getElementById('stage-name').innerText = "Character: " + characterData[currentStage].name;
+    }
+
+    /* -----------------------------------------------------------
+       AUTOMATION & STARTUP
+       ------------------------------------------------Freq */
     createDots();
-    setInterval(spawnClover, 45000); // Clover every 45 seconds
+    
+    // Start the Passive Vitality Game Loop (10 ticks per second)
     setInterval(() => { if(passivePower > 0) { vitality += (passivePower / 10) * multiplier; update(); } }, 100);
+    
+    // Start the Clover Spawner Loop
+    startCloverSpawner(); 
+    
+    // Final UI update
     update();
 </script>
 </body>
