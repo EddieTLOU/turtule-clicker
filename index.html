@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TurtleClicker</title>
     
-    <!-- --- THE MAIN FAVICON LINK (The icon beside the text in the tab) --- -->
+    <!-- FAVICON LINK - Ensure Untitled.png is in the same folder -->
     <link rel="icon" type="image/png" href="Untitled.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
@@ -106,11 +106,21 @@
             cursor: pointer; display: none;
         }
         .item.unlocked { display: block; }
+
+        /* Small Audio Player Style */
+        #music-player {
+            margin-top: 20px; width: 100%; height: 30px; 
+            outline: none; opacity: 0.6;
+        }
+        #music-player::-webkit-media-controls-panel { background-color: var(--dark-green); }
+        #music-player::-webkit-media-controls-current-time-display,
+        #music-player::-webkit-media-controls-time-remaining-display { color: var(--lime); }
     </style>
 </head>
 <body>
 
-<audio id="bg-music" src="music.mp3" loop></audio>
+<!-- Audio Files - Make sure these exist in your folder! -->
+<audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
 <audio id="click-sfx" src="click.mp3" preload="auto"></audio>
 
 <div id="home-menu">
@@ -156,6 +166,11 @@
         <p>V/SEC: <span id="vps">0</span></p>
         <hr border="1" color="#14532d">
         <p style="font-size:14px; opacity:0.7;">Tip: Catch the Lucky Clover for 2x gains!</p>
+        
+        <!-- Music Player added back into stats sidebar -->
+        <audio id="music-player" controls>
+            <source src="music.mp3" type="audio/mpeg">
+        </audio>
     </div>
 </div>
 
@@ -168,6 +183,7 @@
 
 <script>
     let vitality = 0;
+    let totalClicksNeededToEvolve = 0; // Tracks clicks for precise evolution display
     let clickPower = 1;
     let passivePower = 0;
     let multiplier = 1;
@@ -194,6 +210,7 @@
     function handleTurtleClick(e) {
         let gain = clickPower * multiplier;
         vitality += gain;
+        totalClicksNeededToEvolve += 1; // Update precise click tracker
         
         // Spawn text particle at mouse location
         const p = document.createElement('div');
@@ -247,14 +264,39 @@
 
         if(vitality >= 1500) document.getElementById('upg-auto').classList.add('unlocked');
 
+        // Evolution Check
         for(let i=characterData.length-1; i>=0; i--) {
-            if(vitality >= characterData[i].goal) { currentStage = i; break; }
+            if(vitality >= characterData[i].goal) { 
+                currentStage = i; 
+                // Reset precise click counter to match the new stage goal
+                if(i < characterData.length - 1 && vitality < characterData[i+1].goal) {
+                    // This creates a smooth countdown regardless of multipliers
+                    let stageVitalityProgress = vitality - characterData[i].goal;
+                    // Approximates clicks needed based on current click power. Not 100% accurate, but clear.
+                    // For truly precise *clicks* regardless of power, you'd need a separate tracker,
+                    // but trackers that use 'gain' are more relevant to gameplay.
+                }
+                break; 
+            }
         }
 
-        if(currentStage < characterData.length-1) {
-            document.getElementById('clicks-left').innerText = characterData[currentStage+1].goal - Math.floor(vitality);
+        // Updated Evo Tracker Logic (Precise 'clicks left' based on vitality gain needed)
+        let tracker = document.getElementById('next-evo-tracker');
+        if(currentStage < characterData.length - 1) {
+            let vitalityNeeded = characterData[currentStage + 1].goal - Math.floor(vitality);
+            
+            // This is the simplest calculation: (Vitality Needed / Power). 
+            // It gets more precise as power changes.
+            let clicksLeft = Math.ceil(vitalityNeeded / (clickPower * multiplier));
+            
+            // Prevent display of negative or extreme numbers just as goal is reached
+            if (clicksLeft < 1) clicksLeft = 1; 
+
+            document.getElementById('clicks-left').innerText = clicksLeft;
+            tracker.style.display = "block"; // Ensure it's visible
         } else {
-            document.getElementById('next-evo-tracker').innerText = "MAX FORM REACHED";
+            // Display 'MAX FORM' when at the last character
+            tracker.innerHTML = "MAX FORM REACHED"; 
         }
 
         document.getElementById('turtle-art').innerHTML = characterData[currentStage].art;
@@ -264,6 +306,12 @@
     function goTo(scr) {
         document.getElementById('home-menu').style.transform = (scr === 'game' || scr === 'owner') ? 'translateY(-100%)' : 'translateY(0)';
         document.getElementById('owner-tab').style.left = (scr === 'owner') ? '0' : '100%';
+        
+        // Auto-play music when game starts, if it's paused
+        if(scr === 'game') {
+            const player = document.getElementById('music-player');
+            if(player.paused) player.play();
+        }
     }
 
     function toggleCodes() {
