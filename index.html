@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TurtleClicker</title>
     
-    <!-- FAVICON LINK - Ensure Untitled.png is in the same folder -->
+    <!-- TAB ICON -->
     <link rel="icon" type="image/png" href="Untitled.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
@@ -26,7 +26,6 @@
             color: var(--white); overflow: hidden;
         }
 
-        /* --- HOME MENU & DOTS --- */
         #home-menu {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle, var(--mid-green) 0%, var(--dark-green) 100%);
@@ -46,55 +45,53 @@
             to { transform: translateY(-10vh); }
         }
 
-        /* --- CLICK PARTICLES --- */
         .particle {
             position: absolute; pointer-events: none;
-            color: var(--lime); font-size: 24px; font-weight: bold;
+            color: var(--lime); font-size: 28px; font-weight: bold;
             animation: rise 0.8s ease-out forwards; z-index: 100;
+            text-shadow: 2px 2px 0px #000;
         }
 
         @keyframes rise {
-            to { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(-120px) scale(1.2); opacity: 0; }
         }
 
-        /* --- LAYOUT --- */
         #game-screen {
             display: grid; width: 100vw; height: 100vh;
             grid-template-columns: 320px 1fr 320px;
             background: #022c22;
         }
 
-        .sidebar { background: rgba(0,0,0,0.4); padding: 25px; border: 4px solid var(--mid-green); backdrop-filter: blur(5px); }
+        .sidebar { background: rgba(0,0,0,0.4); padding: 25px; border: 4px solid var(--mid-green); backdrop-filter: blur(5px); z-index: 10; }
 
         .green-btn {
             padding: 15px 40px; font-size: 24px; font-family: 'Luckiest Guy';
             background: var(--bright-green); color: white;
             border: 4px solid var(--white); border-radius: 50px;
             cursor: pointer; box-shadow: 0 6px 0 var(--dark-green);
-            z-index: 10;
         }
         .green-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 var(--dark-green); }
 
-        /* Custom Music Buttons */
-        .music-btn {
-            padding: 10px 20px; font-size: 16px; margin: 0 5px;
-            background: #059669; /* Emerald Green */
-            border-radius: 20px; text-transform: uppercase;
+        .music-btn { padding: 10px 20px; font-size: 16px; margin: 0 5px; background: #059669; border-radius: 20px; }
+
+        /* FIXED CLICKABLE AREA */
+        #turtle-wrapper {
+            position: relative; width: 500px; height: 500px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 5;
         }
-        .music-btn:hover { background: var(--bright-green); }
 
         #turtle-container {
-            width: 450px; height: 450px; cursor: pointer;
-            transition: transform 0.05s ease; position: relative;
+            width: 100%; height: 100%;
+            transition: transform 0.05s ease;
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: none; /* Let the wrapper handle the clicks */
         }
-        #turtle-container:active { transform: scale(0.92); }
+        #turtle-wrapper:active #turtle-container { transform: scale(0.92); }
+
+        #turtle-img { width: 100%; height: 100%; object-fit: contain; }
 
         .stat-display { font-size: 80px; color: var(--lime); text-shadow: 5px 5px 0px #000; margin: 0; }
-        
-        #multiplier-tag {
-            color: var(--gold); font-size: 20px; display: none;
-            background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 20px;
-        }
 
         .item {
             background: var(--mid-green); padding: 15px; margin-bottom: 15px;
@@ -102,30 +99,19 @@
             cursor: pointer; display: none;
         }
         .item.unlocked { display: block; }
-
     </style>
 </head>
 <body>
 
-<!-- Audio Files - Make sure these exist in your folder! -->
-<audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
-<audio id="click-sfx" src="click.mp3" preload="auto"></audio>
+<audio id="bg-music" src="music.mp3" loop></audio>
+<audio id="click-sfx" src="click.mp3"></audio>
 
 <div id="home-menu">
     <h1 style="font-size: 100px; color: var(--lime); text-shadow: 6px 6px 0px #000;">TurtleClicker</h1>
-    <div class="btn-group" style="display:flex; flex-direction:column; gap:15px; align-items:center;">
-        <button class="green-btn" onclick="goTo('game')">START GAME</button>
-        <button class="green-btn" style="font-size: 18px;" onclick="toggleCodes()">CODES</button>
-        <div id="code-section" style="display:none;">
-            <input type="text" id="code-in" style="padding:10px; border-radius:10px; border:none; text-align:center;" placeholder="CODE">
-            <button class="green-btn" style="padding:5px 15px; font-size:16px;" onclick="checkCode()">OK</button>
-        </div>
-        <button id="admin-btn" class="green-btn" style="display:none; border-color:var(--gold);" onclick="goTo('owner')">OWNER MENU</button>
-    </div>
+    <button class="green-btn" onclick="goTo('game')">START GAME</button>
 </div>
 
 <div id="game-screen">
-
     <div class="sidebar">
         <h2 style="color:var(--lime); text-align:center;">UPGRADES</h2>
         <div class="item unlocked" onclick="buy('click')">🥬 ORGANIC LETTUCE<br>Cost: <span id="c-cost">10</span></div>
@@ -136,12 +122,13 @@
     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
         <button class="green-btn" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; font-size: 14px;" onclick="goTo('menu')">HOME</button>
         
-        <div id="multiplier-tag">2X BOOST ACTIVE!</div>
         <div class="stat-display" id="v-count">0</div>
         <div id="next-evo-tracker" style="color:var(--lime); margin-bottom:10px;">Next Evo: <span id="clicks-left">50</span></div>
 
-        <div id="turtle-container" onclick="handleTurtleClick(event)">
-            <div id="turtle-art"></div>
+        <div id="turtle-wrapper" onclick="handleTurtleClick(event)">
+            <div id="turtle-container">
+                <div id="turtle-art" style="width:100%; height:100%;"></div>
+            </div>
         </div>
         
         <div style="font-size: 28px; color: var(--bright-green); margin-top: 20px;" id="stage-name">Character: Egg</div>
@@ -152,9 +139,7 @@
         <p>TOTAL AGE: <span id="age-num">0</span></p>
         <p>V/SEC: <span id="vps">0</span></p>
         <hr border="1" color="#14532d">
-        <p style="font-size:14px; opacity:0.7;">Tip: Buy upgrades to grow faster!</p>
         
-        <!-- CUSTOM MUSIC CONTROLS (Removed the 'Google type' player) -->
         <h3 style="color:var(--lime); text-align:center; margin-top:20px;">Music Control</h3>
         <div style="display:flex; justify-content:center; gap:10px;">
             <button class="green-btn music-btn" onclick="controlMusic('pause')">Pause</button>
@@ -163,53 +148,33 @@
     </div>
 </div>
 
-<!-- Admin Tab -->
-<div id="owner-tab" style="position:fixed; top:0; left:100%; width:100vw; height:100vh; background:#022c22; z-index:600; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:0.5s;">
-    <h1>ADMIN MODS</h1>
-    <button class="green-btn" onclick="vitality += 500000; update();">GIVE 500K</button><br>
-    <button class="green-btn" style="background:#b91c1c" onclick="goTo('menu')">CLOSE</button>
-</div>
-
 <script>
     let vitality = 0;
     let clickPower = 1;
     let passivePower = 0;
-    let multiplier = 1;
     let currentStage = 0;
     let costs = { click: 10, passive: 50, auto: 2000 };
 
     const characterData = [
-        { name: "Egg", goal: 0, art: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="30" ry="40" fill="#fefce8" stroke="#ccc"/></svg>` },
-        { name: "Hatchling", goal: 50, art: `<svg viewBox="0 0 100 100"><path d="M20 70 L10 85 M80 70 L90 85" stroke="#166534" stroke-width="6"/><circle cx="50" cy="50" r="30" fill="#22c55e"/><circle cx="82" cy="50" r="10" fill="#22c55e"/></svg>` },
-        { name: "Snapper", goal: 1000, art: `<svg viewBox="0 0 100 100"><path d="M15 50 Q50 0 85 50 Q50 100 15 50" fill="#15803d" stroke="#facc15" stroke-width="3"/><circle cx="90" cy="50" r="14" fill="#15803d"/></svg>` },
-        { name: "Ancient One", goal: 10000, art: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#065f46" stroke="#fbbf24" stroke-width="5"/><circle cx="95" cy="50" r="18" fill="#065f46"/></svg>` }
+        { name: "Egg", goal: 0, type: 'svg', art: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="30" ry="40" fill="#fefce8" stroke="#ccc" stroke-width="2"/><path d="M40 30 Q50 20 60 30" fill="none" stroke="#ddd" stroke-width="1"/></svg>` },
+        { name: "Hatchling", goal: 50, type: 'img', art: `Untitled.png` },
+        { name: "Armor Shell", goal: 2500, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M20 60 Q50 10 80 60" fill="#14532d" stroke="#facc15" stroke-width="4"/><rect x="40" y="60" width="20" height="15" fill="#166534"/><circle cx="85" cy="55" r="12" fill="#166534" stroke="#facc15" stroke-width="2"/></svg>` },
+        { name: "Ancient Titan", goal: 15000, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M10 70 Q50 -10 90 70 Z" fill="#064e3b" stroke="#fbbf24" stroke-width="5"/><circle cx="50" cy="40" r="15" fill="none" stroke="#fbbf24" opacity="0.3"/><circle cx="92" cy="65" r="18" fill="#064e3b" stroke="#fbbf24" stroke-width="3"/></svg>` }
     ];
 
-    function createDots() {
-        const menu = document.getElementById('home-menu');
-        for(let i=0; i<40; i++) {
-            let d = document.createElement('div'); d.className = 'dot';
-            d.style.width = d.style.height = Math.random()*12+4+'px';
-            d.style.left = Math.random()*100+'vw'; d.style.animationDelay = Math.random()*8+'s';
-            menu.appendChild(d);
-        }
-    }
-
     function handleTurtleClick(e) {
-        let gain = clickPower * multiplier;
-        vitality += gain;
+        vitality += clickPower;
         
-        // Spawn text particle at mouse location
         const p = document.createElement('div');
         p.className = 'particle';
-        p.innerText = "+" + gain;
+        p.innerText = "+" + clickPower;
         p.style.left = e.clientX + 'px';
         p.style.top = e.clientY + 'px';
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 800);
 
         document.getElementById('click-sfx').currentTime = 0;
-        document.getElementById('click-sfx').play().catch(e => console.log("Click SFX enabled"));
+        document.getElementById('click-sfx').play().catch(() => {});
         update();
     }
 
@@ -233,7 +198,6 @@
 
         if(vitality >= 1500) document.getElementById('upg-auto').classList.add('unlocked');
 
-        // Evolution Check
         for(let i=characterData.length-1; i>=0; i--) {
             if(vitality >= characterData[i].goal) { 
                 currentStage = i; 
@@ -241,63 +205,36 @@
             }
         }
 
-        // Updated Evo Tracker Logic (Precise 'clicks left' based on vitality gain needed)
         let tracker = document.getElementById('next-evo-tracker');
         if(currentStage < characterData.length - 1) {
-            let vitalityNeeded = characterData[currentStage + 1].goal - Math.floor(vitality);
-            
-            // This is the simplest calculation: (Vitality Needed / Power). 
-            // It gets more precise as power changes.
-            let clicksLeft = Math.ceil(vitalityNeeded / (clickPower * multiplier));
-            
-            // Prevent display of negative or extreme numbers just as goal is reached
-            if (clicksLeft < 1) clicksLeft = 1; 
-
-            document.getElementById('clicks-left').innerText = clicksLeft;
-            tracker.style.display = "block"; // Ensure it's visible
+            let needed = characterData[currentStage + 1].goal - Math.floor(vitality);
+            document.getElementById('clicks-left').innerText = Math.ceil(needed / clickPower);
+            tracker.style.display = "block";
         } else {
-            // Display 'MAX FORM' when at the last character
-            tracker.innerText = "MAX FORM REACHED"; 
+            tracker.innerText = "MAX EVOLUTION"; 
         }
 
-        document.getElementById('turtle-art').innerHTML = characterData[currentStage].art;
-        document.getElementById('stage-name').innerText = "Character: " + characterData[currentStage].name;
+        const artDiv = document.getElementById('turtle-art');
+        const char = characterData[currentStage];
+        if(char.type === 'img') {
+            artDiv.innerHTML = `<img src="${char.art}" id="turtle-img">`;
+        } else {
+            artDiv.innerHTML = char.art;
+        }
+        document.getElementById('stage-name').innerText = "Character: " + char.name;
     }
 
     function goTo(scr) {
-        document.getElementById('home-menu').style.transform = (scr === 'game' || scr === 'owner') ? 'translateY(-100%)' : 'translateY(0)';
-        document.getElementById('owner-tab').style.left = (scr === 'owner') ? '0' : '100%';
-        
-        // Auto-play music when game starts
-        if(scr === 'game') {
-            document.getElementById('bg-music').play().catch(e => console.log("Autoplay blocked by browser. Press Play to start music."));
-        }
+        document.getElementById('home-menu').style.transform = (scr === 'game') ? 'translateY(-100%)' : 'translateY(0)';
+        if(scr === 'game') document.getElementById('bg-music').play().catch(() => {});
     }
 
-    // Custom Music Control Function
     function controlMusic(action) {
         const music = document.getElementById('bg-music');
-        if (action === 'play') {
-            music.play();
-        } else if (action === 'pause') {
-            music.pause();
-        }
+        action === 'play' ? music.play() : music.pause();
     }
 
-    function toggleCodes() {
-        const s = document.getElementById('code-section');
-        s.style.display = (s.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function checkCode() {
-        if(document.getElementById('code-in').value.toUpperCase() === "OWNER123") {
-            document.getElementById('admin-btn').style.display = 'block';
-            toggleCodes();
-        }
-    }
-
-    createDots();
-    setInterval(() => { if(passivePower > 0) { vitality += (passivePower / 10) * multiplier; update(); } }, 100);
+    setInterval(() => { if(passivePower > 0) { vitality += (passivePower / 10); update(); } }, 100);
     update();
 </script>
 </body>
