@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TurtleClicker</title>
     
-    <!-- TAB ICON -->
+    <!-- FAVICON -->
     <link rel="icon" type="image/png" href="Untitled.png">
     
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
             --lime: #a3e635;
             --white: #f8fafc;
             --gold: #facc15;
+            --ruby: #e11d48;
         }
 
         body, html {
@@ -25,18 +26,16 @@
             background-color: var(--dark-green);
             color: var(--white); overflow: hidden;
             touch-action: manipulation;
+            user-select: none; /* Prevents annoying highlight boxes */
         }
 
-        /* --- MOBILE ADAPTIVE MENU --- */
+        /* --- MENUS --- */
         #home-menu {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, var(--mid-green) 0%, var(--dark-green) 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 500; transition: transform 0.5s ease-in-out;
-            text-align: center;
+            z-index: 1000; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .btn-stack { display: flex; flex-direction: column; gap: 10px; width: 80%; max-width: 300px; }
 
         /* --- GAME LAYOUT --- */
         #game-screen {
@@ -46,74 +45,87 @@
         }
 
         .header-stats {
-            background: rgba(0,0,0,0.5); padding: 10px;
+            background: rgba(0,0,0,0.6); padding: 12px;
             display: flex; justify-content: space-around; align-items: center;
-            border-bottom: 3px solid var(--mid-green);
+            border-bottom: 4px solid var(--mid-green);
+            z-index: 20;
         }
 
         .main-area {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
+            position: relative;
         }
 
         .bottom-shop {
-            height: 30%; background: rgba(0,0,0,0.6);
+            height: 40%; background: rgba(0,0,0,0.85);
             border-top: 4px solid var(--mid-green);
-            display: flex; flex-direction: column; padding: 10px;
-            overflow-y: auto;
+            display: flex; flex-direction: column; padding: 15px;
+            overflow-y: scroll;
         }
 
-        /* --- INTERACTIVE BUTTONS --- */
+        /* --- BUTTONS & UI --- */
         .green-btn {
-            padding: 12px 20px; font-size: 18px; font-family: 'Luckiest Guy';
+            padding: 12px 24px; font-size: 18px; font-family: 'Luckiest Guy';
             background: var(--bright-green); color: white;
-            border: 3px solid var(--white); border-radius: 25px;
-            cursor: pointer; box-shadow: 0 4px 0 var(--dark-green);
-            transition: transform 0.1s;
+            border: 3px solid var(--white); border-radius: 30px;
+            cursor: pointer; box-shadow: 0 5px 0 var(--dark-green);
+            text-transform: uppercase;
         }
         .green-btn:active { transform: scale(0.95) translateY(2px); box-shadow: 0 2px 0 var(--dark-green); }
 
-        .code-input {
-            padding: 10px; border-radius: 15px; border: none; 
-            text-align: center; font-family: 'Luckiest Guy'; width: 100%;
-        }
+        .music-ctrl { background: #059669; border-radius: 15px; padding: 8px 16px; font-size: 14px; }
 
-        /* --- TURTLE ACTION --- */
+        /* --- TURTLE & CLICKING --- */
         #turtle-wrapper {
-            width: 280px; height: 280px;
+            width: 340px; height: 340px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; position: relative;
+            cursor: pointer; position: relative; z-index: 50;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        #turtle-container { width: 100%; height: 100%; transition: transform 0.05s; }
+        #turtle-container {
+            width: 100%; height: 100%;
+            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
         #turtle-wrapper:active #turtle-container { transform: scale(0.85); }
 
         .particle {
             position: absolute; pointer-events: none;
             color: var(--lime); font-size: 32px;
-            animation: float-up 0.6s ease-out forwards;
+            animation: float-up 0.7s ease-out forwards;
             text-shadow: 2px 2px 0 #000; z-index: 100;
         }
 
-        @keyframes float-up { to { transform: translateY(-100px); opacity: 0; } }
+        @keyframes float-up {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
+        }
 
-        .stat-main { font-size: 45px; color: var(--lime); text-shadow: 3px 3px 0 #000; }
-
+        /* --- SHOP ITEMS --- */
+        .shop-category { font-size: 14px; color: var(--gold); margin: 10px 0 5px; border-bottom: 1px solid #333; }
+        
         .shop-item {
-            display: none; background: var(--mid-green); padding: 10px;
-            margin-bottom: 8px; border-radius: 15px; border: 2px solid var(--bright-green);
+            display: none; background: #064e3b; padding: 14px;
+            margin-bottom: 10px; border-radius: 18px; border: 2px solid var(--bright-green);
             justify-content: space-between; align-items: center;
+            transition: background 0.2s;
         }
         .shop-item.unlocked { display: flex; }
+        .shop-item:active { background: #14532d; }
 
-        /* Admin/Owner Panel */
-        #owner-tab {
+        .item-info { display: flex; flex-direction: column; }
+        .item-title { font-size: 18px; color: var(--white); }
+        .item-desc { font-size: 12px; color: var(--lime); opacity: 0.8; }
+
+        #admin-panel {
             position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
-            background: var(--dark-green); z-index: 600; 
+            background: #020617; z-index: 2000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.4s;
+            transition: 0.5s;
         }
+
     </style>
 </head>
 <body>
@@ -122,161 +134,252 @@
 <audio id="click-sfx" src="click.mp3"></audio>
 
 <div id="home-menu">
-    <h1 style="font-size: 50px; color: var(--lime); margin-bottom: 20px;">TurtleClicker</h1>
-    <div class="btn-stack">
+    <h1 style="font-size: 60px; color: var(--lime); text-shadow: 4px 4px 0 #000; margin-bottom: 30px;">TurtleClicker</h1>
+    <div style="display:flex; flex-direction:column; gap:15px; width: 200px;">
         <button class="green-btn" onclick="goTo('game')">PLAY</button>
-        <button class="green-btn" style="font-size: 14px;" onclick="toggleCodes()">CODES</button>
-        <div id="code-box" style="display:none;">
-            <input type="text" id="code-in" class="code-input" placeholder="ENTER CODE">
-            <button class="green-btn" style="width: 100%; margin-top:5px; padding:5px;" onclick="checkCode()">OK</button>
+        <button class="green-btn" style="font-size: 12px;" onclick="toggleCodes()">ENTER CODE</button>
+        <div id="code-ui" style="display:none;">
+            <input type="text" id="code-input" style="width:100%; padding:10px; border-radius:10px; border:none; text-align:center;" placeholder="...">
+            <button class="green-btn" style="width:100%; margin-top:5px; padding:5px;" onclick="submitCode()">OK</button>
         </div>
-        <button id="admin-entry" class="green-btn" style="display:none; border-color:var(--gold);" onclick="goTo('owner')">OWNER MENU</button>
+        <button id="owner-access" class="green-btn" style="display:none; border-color:var(--gold);" onclick="goTo('admin')">OWNER MENU</button>
     </div>
 </div>
 
 <div id="game-screen">
     <div class="header-stats">
-        <div>V/SEC: <span id="vps">0</span></div>
-        <div>AGE: <span id="age-num">0</span></div>
-        <button class="green-btn" style="padding: 5px 15px; font-size: 12px;" onclick="goTo('menu')">MENU</button>
+        <div>V/SEC: <span id="vps-display" style="color:var(--lime)">0</span></div>
+        <div>AGE: <span id="age-display" style="color:var(--gold)">0</span></div>
+        <button class="green-btn" style="padding: 5px 12px; font-size: 12px;" onclick="goTo('menu')">MENU</button>
     </div>
 
     <div class="main-area">
-        <div class="stat-main" id="v-count">0</div>
-        <div id="evo-text" style="color:var(--lime); font-size: 14px;">Next: <span id="clicks-left">50</span></div>
+        <div style="font-size: 55px; color: var(--lime); text-shadow: 4px 4px 0 #000; margin-bottom: 5px;" id="vitality-display">0</div>
+        <div id="evo-progress" style="color:var(--white); font-size: 14px; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 10px;">
+            Next Evolution: <span id="clicks-needed" style="color:var(--lime)">50</span> clicks
+        </div>
 
-        <div id="turtle-wrapper" onclick="handleTurtleClick(event)">
+        <div id="turtle-wrapper" onclick="handleInteraction(event)">
             <div id="turtle-container">
-                <div id="turtle-art" style="width:100%; height:100%;"></div>
+                <div id="turtle-sprite" style="width:100%; height:100%;"></div>
             </div>
         </div>
         
-        <div id="stage-name" style="color:var(--bright-green); margin-top:10px;">Egg</div>
+        <div id="rank-display" style="color:var(--bright-green); font-size: 24px; margin-top: 15px;">Stage: Egg</div>
         
-        <div style="margin-top: 15px;">
-            <button class="green-btn" style="padding:8px 15px; font-size:14px; background:#059669;" onclick="music('play')">♫ PLAY</button>
-            <button class="green-btn" style="padding:8px 15px; font-size:14px; background:#059669;" onclick="music('pause')">║ PAUSE</button>
+        <div style="margin-top: 20px; display: flex; gap: 15px;">
+            <button class="green-btn music-ctrl" onclick="handleMusic('play')">▶ PLAY</button>
+            <button class="green-btn music-ctrl" onclick="handleMusic('pause')">⏸ PAUSE</button>
         </div>
     </div>
 
     <div class="bottom-shop">
-        <h3 style="margin: 0 0 10px 0; text-align:center; color:var(--lime);">UPGRADES</h3>
-        <div class="shop-item unlocked" onclick="buy('click')">
-            <span>LETTUCE</span>
-            <span class="green-btn" style="padding:5px 10px; font-size:14px;">$<span id="c-cost">10</span></span>
+        <div class="shop-category">FOOD & ENERGY</div>
+        <div class="shop-item unlocked" onclick="purchase('lettuce')">
+            <div class="item-info">
+                <span class="item-title">🥬 Organic Lettuce</span>
+                <span class="item-desc">+1 Click Power</span>
+            </div>
+            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-lettuce">10</span></span>
         </div>
-        <div class="shop-item unlocked" onclick="buy('passive')">
-            <span>UV LIGHT</span>
-            <span class="green-btn" style="padding:5px 10px; font-size:14px;">$<span id="p-cost">50</span></span>
+        <div class="shop-item unlocked" onclick="purchase('strawberry')">
+            <div class="item-info">
+                <span class="item-title">🍓 Fresh Strawberry</span>
+                <span class="item-desc">+8 Click Power</span>
+            </div>
+            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-strawberry">200</span></span>
         </div>
-        <div class="shop-item" id="upg-auto" onclick="buy('auto')">
-            <span>FRIEND</span>
-            <span class="green-btn" style="padding:5px 10px; font-size:14px;">$<span id="a-cost">2000</span></span>
+        <div class="shop-item" id="item-melon" onclick="purchase('melon')">
+            <div class="item-info">
+                <span class="item-title">🍉 Sweet Melon</span>
+                <span class="item-desc">+50 Click Power</span>
+            </div>
+            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-melon">1500</span></span>
+        </div>
+
+        <div class="shop-category">ENVIRONMENT</div>
+        <div class="shop-item unlocked" onclick="purchase('uv')">
+            <div class="item-info">
+                <span class="item-title">💡 UV Habitat Lamp</span>
+                <span class="item-desc">+2 Vitality / Sec</span>
+            </div>
+            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-uv">100</span></span>
+        </div>
+        <div class="shop-item" id="item-filter" onclick="purchase('filter')">
+            <div class="item-info">
+                <span class="item-title">💧 Water Filter</span>
+                <span class="item-desc">+15 Vitality / Sec</span>
+            </div>
+            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-filter">750</span></span>
+        </div>
+        
+        <div class="shop-category">COMPANIONS</div>
+        <div class="shop-item" id="item-friend" onclick="purchase('friend')">
+            <div class="item-info">
+                <span class="item-title">🐢 Turtle Friend</span>
+                <span class="item-desc">+100 Vitality / Sec</span>
+            </div>
+            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-friend">5000</span></span>
         </div>
     </div>
 </div>
 
-<div id="owner-tab">
-    <h1>OWNER MODS</h1>
-    <button class="green-btn" onclick="vitality += 1000000; update();">ADD 1M VITALITY</button>
+<div id="admin-panel">
+    <h1 style="color:var(--gold)">ADMIN CONSOLE</h1>
+    <button class="green-btn" onclick="cheatVitality()">+1M VITALITY</button>
     <br>
-    <button class="green-btn" style="background:#b91c1c" onclick="goTo('game')">EXIT</button>
+    <button class="green-btn" style="background:var(--ruby)" onclick="goTo('game')">BACK TO GAME</button>
 </div>
 
 <script>
-    let vitality = 0;
-    let clickPower = 1;
-    let passivePower = 0;
-    let currentStage = 0;
-    let costs = { click: 10, passive: 50, auto: 2000 };
+    // --- GAME STATE ---
+    let state = {
+        vitality: 0,
+        clickPower: 1,
+        passiveIncome: 0,
+        stageIndex: 0,
+        costs: {
+            lettuce: 10,
+            strawberry: 200,
+            melon: 1500,
+            uv: 100,
+            filter: 750,
+            friend: 5000
+        }
+    };
 
-    const characterData = [
-        { name: "Egg", goal: 0, type: 'svg', art: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="38" fill="#fefce8" stroke="#ccc" stroke-width="2"/></svg>` },
-        { name: "Hatchling", goal: 50, type: 'img', art: `Untitled.png` },
-        { name: "Iron Shell", goal: 5000, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M20 70 Q50 10 80 70" fill="#14532d" stroke="#facc15" stroke-width="4"/><circle cx="85" cy="65" r="12" fill="#166534" stroke="#facc15" stroke-width="2"/></svg>` },
-        { name: "God Turtle", goal: 50000, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M10 75 Q50 -10 90 75 Z" fill="#064e3b" stroke="#fbbf24" stroke-width="5"/><circle cx="92" cy="70" r="18" fill="#064e3b" stroke="#fbbf24" stroke-width="3"/></svg>` }
+    const evolutions = [
+        { name: "Egg", req: 0, type: 'svg', data: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="38" ry="46" fill="#fffde7" stroke="#e0e0e0" stroke-width="2"/></svg>` },
+        { name: "Hatchling", req: 50, type: 'img', data: `Untitled.png` },
+        { name: "Juvenile", req: 2500, type: 'svg', data: `<svg viewBox="0 0 100 100"><path d="M20 70 Q50 15 80 70" fill="#14532d" stroke="#a3e635" stroke-width="3"/><circle cx="85" cy="62" r="14" fill="#166534" stroke="#a3e635" stroke-width="2"/></svg>` },
+        { name: "Ancient", req: 20000, type: 'svg', data: `<svg viewBox="0 0 100 100"><path d="M10 75 Q50 -10 90 75 Z" fill="#064e3b" stroke="#fbbf24" stroke-width="5"/><circle cx="92" cy="68" r="18" fill="#064e3b" stroke="#fbbf24" stroke-width="3"/><path d="M30 40 Q50 30 70 40" stroke="#fbbf24" fill="none" opacity="0.4"/></svg>` }
     ];
 
-    function handleTurtleClick(e) {
-        vitality += clickPower;
-        
-        // Mobile particle support
+    // --- CORE LOGIC ---
+    function handleInteraction(e) {
+        state.vitality += state.clickPower;
+        spawnParticle(e);
+        playSound('click-sfx');
+        refreshUI();
+    }
+
+    function spawnParticle(e) {
         const p = document.createElement('div');
         p.className = 'particle';
-        p.innerText = "+" + clickPower;
-        p.style.left = (e.clientX || e.touches[0].clientX) + 'px';
-        p.style.top = (e.clientY || e.touches[0].clientY) + 'px';
+        p.innerText = "+" + state.clickPower;
+        const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+        const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
         document.body.appendChild(p);
-        setTimeout(() => p.remove(), 600);
-
-        document.getElementById('click-sfx').currentTime = 0;
-        document.getElementById('click-sfx').play().catch(()=>{});
-        update();
+        setTimeout(() => p.remove(), 700);
     }
 
-    function buy(type) {
-        if(vitality >= costs[type]) {
-            vitality -= costs[type];
-            if(type === 'click') { clickPower += 2; costs.click *= 1.8; }
-            else if(type === 'passive') { passivePower += 1; costs.passive *= 2; }
-            else { passivePower += 25; costs.auto *= 2.5; }
-            update();
+    function purchase(id) {
+        if (state.vitality >= state.costs[id]) {
+            state.vitality -= state.costs[id];
+            
+            if (id === 'lettuce') { state.clickPower += 1; state.costs.lettuce *= 1.6; }
+            else if (id === 'strawberry') { state.clickPower += 8; state.costs.strawberry *= 1.8; }
+            else if (id === 'melon') { state.clickPower += 50; state.costs.melon *= 2; }
+            else if (id === 'uv') { state.passiveIncome += 2; state.costs.uv *= 1.7; }
+            else if (id === 'filter') { state.passiveIncome += 15; state.costs.filter *= 1.9; }
+            else if (id === 'friend') { state.passiveIncome += 100; state.costs.friend *= 2.2; }
+            
+            refreshUI();
         }
     }
 
-    function update() {
-        document.getElementById('v-count').innerText = Math.floor(vitality).toLocaleString();
-        document.getElementById('vps').innerText = passivePower;
-        document.getElementById('age-num').innerText = Math.floor(vitality/100);
-        document.getElementById('c-cost').innerText = Math.floor(costs.click);
-        document.getElementById('p-cost').innerText = Math.floor(costs.passive);
-        document.getElementById('a-cost').innerText = Math.floor(costs.auto);
-
-        if(vitality >= 1000) document.getElementById('upg-auto').classList.add('unlocked');
-
-        for(let i=characterData.length-1; i>=0; i--) {
-            if(vitality >= characterData[i].goal) { currentStage = i; break; }
+    function refreshUI() {
+        // Stats
+        document.getElementById('vitality-display').innerText = Math.floor(state.vitality).toLocaleString();
+        document.getElementById('vps-display').innerText = state.passiveIncome;
+        document.getElementById('age-display').innerText = Math.floor(state.vitality / 100);
+        
+        // Costs
+        for (const [key, val] of Object.entries(state.costs)) {
+            const el = document.getElementById('cost-' + key);
+            if (el) el.innerText = Math.floor(val).toLocaleString();
         }
 
-        let tracker = document.getElementById('evo-text');
-        if(currentStage < characterData.length - 1) {
-            let needed = characterData[currentStage + 1].goal - Math.floor(vitality);
-            document.getElementById('clicks-left').innerText = Math.ceil(needed / clickPower);
+        // Visibility Logic
+        if (state.vitality >= 500) document.getElementById('item-melon').classList.add('unlocked');
+        if (state.vitality >= 250) document.getElementById('item-filter').classList.add('unlocked');
+        if (state.vitality >= 1500) document.getElementById('item-friend').classList.add('unlocked');
+
+        // Evolutions
+        let nextStage = 0;
+        for (let i = evolutions.length - 1; i >= 0; i--) {
+            if (state.vitality >= evolutions[i].req) {
+                nextStage = i;
+                break;
+            }
+        }
+
+        if (nextStage !== state.stageIndex) {
+            state.stageIndex = nextStage;
+            const sprite = document.getElementById('turtle-sprite');
+            const data = evolutions[state.stageIndex];
+            sprite.innerHTML = (data.type === 'img') ? `<img src="${data.data}" style="width:100%; height:100%; object-fit:contain;">` : data.data;
+            document.getElementById('rank-display').innerText = "Stage: " + data.name;
+        }
+
+        // Progress Tracker
+        const tracker = document.getElementById('evo-progress');
+        if (state.stageIndex < evolutions.length - 1) {
+            const diff = evolutions[state.stageIndex + 1].req - Math.floor(state.vitality);
+            document.getElementById('clicks-needed').innerText = Math.ceil(diff / state.clickPower);
         } else {
-            tracker.innerText = "MAX FORM";
+            tracker.innerHTML = "FINAL FORM REACHED";
         }
-
-        const artDiv = document.getElementById('turtle-art');
-        const char = characterData[currentStage];
-        artDiv.innerHTML = (char.type === 'img') ? `<img src="${char.art}" style="width:100%; height:100%; object-fit:contain;">` : char.art;
-        document.getElementById('stage-name').innerText = char.name;
     }
 
+    // --- SYSTEMS ---
     function goTo(scr) {
-        document.getElementById('home-menu').style.transform = (scr === 'game' || scr === 'owner') ? 'translateX(-100%)' : 'translateX(0)';
-        document.getElementById('owner-tab').style.right = (scr === 'owner') ? '0' : '-100%';
-        if(scr === 'game') document.getElementById('bg-music').play().catch(()=>{});
-    }
-
-    function music(act) {
-        const m = document.getElementById('bg-music');
-        act === 'play' ? m.play() : m.pause();
+        const home = document.getElementById('home-menu');
+        const admin = document.getElementById('admin-panel');
+        
+        if (scr === 'game') { home.style.transform = 'translateY(-100%)'; admin.style.right = '-100%'; }
+        else if (scr === 'admin') { admin.style.right = '0'; }
+        else { home.style.transform = 'translateY(0)'; }
     }
 
     function toggleCodes() {
-        const b = document.getElementById('code-box');
-        b.style.display = b.style.display === 'none' ? 'block' : 'none';
+        const ui = document.getElementById('code-ui');
+        ui.style.display = (ui.style.display === 'none') ? 'block' : 'none';
     }
 
-    function checkCode() {
-        if(document.getElementById('code-in').value.toUpperCase() === "OWNER123") {
-            document.getElementById('admin-entry').style.display = 'block';
+    function submitCode() {
+        const val = document.getElementById('code-input').value.toUpperCase();
+        if (val === "OWNER123") {
+            document.getElementById('owner-access').style.display = 'block';
             toggleCodes();
         }
     }
 
-    setInterval(() => { if(passivePower > 0) { vitality += (passivePower / 10); update(); } }, 100);
-    update();
+    function cheatVitality() { state.vitality += 1000000; refreshUI(); }
+
+    function handleMusic(action) {
+        const m = document.getElementById('bg-music');
+        (action === 'play') ? m.play().catch(()=>{}) : m.pause();
+    }
+
+    function playSound(id) {
+        const s = document.getElementById(id);
+        s.currentTime = 0;
+        s.play().catch(()=>{});
+    }
+
+    // Tick system (10 times per second)
+    setInterval(() => {
+        if (state.passiveIncome > 0) {
+            state.vitality += (state.passiveIncome / 10);
+            refreshUI();
+        }
+    }, 100);
+
+    // Initial Render
+    refreshUI();
 </script>
 </body>
 </html>
