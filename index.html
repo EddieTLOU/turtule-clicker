@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TurtleClicker</title>
     
     <!-- TAB ICON -->
@@ -24,81 +24,96 @@
             font-family: 'Luckiest Guy', cursive;
             background-color: var(--dark-green);
             color: var(--white); overflow: hidden;
+            touch-action: manipulation;
         }
 
+        /* --- MOBILE ADAPTIVE MENU --- */
         #home-menu {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, var(--mid-green) 0%, var(--dark-green) 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 500; border: 15px solid var(--mid-green); box-sizing: border-box;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 500; transition: transform 0.5s ease-in-out;
+            text-align: center;
         }
 
-        .dot {
-            position: absolute; background: var(--bright-green);
-            border-radius: 50%; opacity: 0.3; pointer-events: none;
-            animation: float 8s infinite linear;
-        }
+        .btn-stack { display: flex; flex-direction: column; gap: 10px; width: 80%; max-width: 300px; }
 
-        @keyframes float {
-            from { transform: translateY(110vh); }
-            to { transform: translateY(-10vh); }
-        }
-
-        .particle {
-            position: absolute; pointer-events: none;
-            color: var(--lime); font-size: 28px; font-weight: bold;
-            animation: rise 0.8s ease-out forwards; z-index: 100;
-            text-shadow: 2px 2px 0px #000;
-        }
-
-        @keyframes rise {
-            to { transform: translateY(-120px) scale(1.2); opacity: 0; }
-        }
-
+        /* --- GAME LAYOUT --- */
         #game-screen {
-            display: grid; width: 100vw; height: 100vh;
-            grid-template-columns: 320px 1fr 320px;
+            display: flex; flex-direction: column; 
+            width: 100vw; height: 100vh;
             background: #022c22;
         }
 
-        .sidebar { background: rgba(0,0,0,0.4); padding: 25px; border: 4px solid var(--mid-green); backdrop-filter: blur(5px); z-index: 10; }
+        .header-stats {
+            background: rgba(0,0,0,0.5); padding: 10px;
+            display: flex; justify-content: space-around; align-items: center;
+            border-bottom: 3px solid var(--mid-green);
+        }
 
+        .main-area {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        .bottom-shop {
+            height: 30%; background: rgba(0,0,0,0.6);
+            border-top: 4px solid var(--mid-green);
+            display: flex; flex-direction: column; padding: 10px;
+            overflow-y: auto;
+        }
+
+        /* --- INTERACTIVE BUTTONS --- */
         .green-btn {
-            padding: 15px 40px; font-size: 24px; font-family: 'Luckiest Guy';
+            padding: 12px 20px; font-size: 18px; font-family: 'Luckiest Guy';
             background: var(--bright-green); color: white;
-            border: 4px solid var(--white); border-radius: 50px;
-            cursor: pointer; box-shadow: 0 6px 0 var(--dark-green);
+            border: 3px solid var(--white); border-radius: 25px;
+            cursor: pointer; box-shadow: 0 4px 0 var(--dark-green);
+            transition: transform 0.1s;
         }
-        .green-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 var(--dark-green); }
+        .green-btn:active { transform: scale(0.95) translateY(2px); box-shadow: 0 2px 0 var(--dark-green); }
 
-        .music-btn { padding: 10px 20px; font-size: 16px; margin: 0 5px; background: #059669; border-radius: 20px; }
+        .code-input {
+            padding: 10px; border-radius: 15px; border: none; 
+            text-align: center; font-family: 'Luckiest Guy'; width: 100%;
+        }
 
-        /* FIXED CLICKABLE AREA */
+        /* --- TURTLE ACTION --- */
         #turtle-wrapper {
-            position: relative; width: 500px; height: 500px;
+            width: 280px; height: 280px;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 5;
+            cursor: pointer; position: relative;
         }
 
-        #turtle-container {
-            width: 100%; height: 100%;
-            transition: transform 0.05s ease;
-            display: flex; align-items: center; justify-content: center;
-            pointer-events: none; /* Let the wrapper handle the clicks */
+        #turtle-container { width: 100%; height: 100%; transition: transform 0.05s; }
+        #turtle-wrapper:active #turtle-container { transform: scale(0.85); }
+
+        .particle {
+            position: absolute; pointer-events: none;
+            color: var(--lime); font-size: 32px;
+            animation: float-up 0.6s ease-out forwards;
+            text-shadow: 2px 2px 0 #000; z-index: 100;
         }
-        #turtle-wrapper:active #turtle-container { transform: scale(0.92); }
 
-        #turtle-img { width: 100%; height: 100%; object-fit: contain; }
+        @keyframes float-up { to { transform: translateY(-100px); opacity: 0; } }
 
-        .stat-display { font-size: 80px; color: var(--lime); text-shadow: 5px 5px 0px #000; margin: 0; }
+        .stat-main { font-size: 45px; color: var(--lime); text-shadow: 3px 3px 0 #000; }
 
-        .item {
-            background: var(--mid-green); padding: 15px; margin-bottom: 15px;
-            border-radius: 15px; border: 3px solid var(--bright-green);
-            cursor: pointer; display: none;
+        .shop-item {
+            display: none; background: var(--mid-green); padding: 10px;
+            margin-bottom: 8px; border-radius: 15px; border: 2px solid var(--bright-green);
+            justify-content: space-between; align-items: center;
         }
-        .item.unlocked { display: block; }
+        .shop-item.unlocked { display: flex; }
+
+        /* Admin/Owner Panel */
+        #owner-tab {
+            position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
+            background: var(--dark-green); z-index: 600; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.4s;
+        }
     </style>
 </head>
 <body>
@@ -107,23 +122,28 @@
 <audio id="click-sfx" src="click.mp3"></audio>
 
 <div id="home-menu">
-    <h1 style="font-size: 100px; color: var(--lime); text-shadow: 6px 6px 0px #000;">TurtleClicker</h1>
-    <button class="green-btn" onclick="goTo('game')">START GAME</button>
+    <h1 style="font-size: 50px; color: var(--lime); margin-bottom: 20px;">TurtleClicker</h1>
+    <div class="btn-stack">
+        <button class="green-btn" onclick="goTo('game')">PLAY</button>
+        <button class="green-btn" style="font-size: 14px;" onclick="toggleCodes()">CODES</button>
+        <div id="code-box" style="display:none;">
+            <input type="text" id="code-in" class="code-input" placeholder="ENTER CODE">
+            <button class="green-btn" style="width: 100%; margin-top:5px; padding:5px;" onclick="checkCode()">OK</button>
+        </div>
+        <button id="admin-entry" class="green-btn" style="display:none; border-color:var(--gold);" onclick="goTo('owner')">OWNER MENU</button>
+    </div>
 </div>
 
 <div id="game-screen">
-    <div class="sidebar">
-        <h2 style="color:var(--lime); text-align:center;">UPGRADES</h2>
-        <div class="item unlocked" onclick="buy('click')">🥬 ORGANIC LETTUCE<br>Cost: <span id="c-cost">10</span></div>
-        <div class="item unlocked" onclick="buy('passive')">☀️ UV LIGHT<br>Cost: <span id="p-cost">50</span></div>
-        <div class="item" id="upg-auto" onclick="buy('auto')">🐢 TURTLE FRIEND<br>Cost: <span id="a-cost">2000</span></div>
+    <div class="header-stats">
+        <div>V/SEC: <span id="vps">0</span></div>
+        <div>AGE: <span id="age-num">0</span></div>
+        <button class="green-btn" style="padding: 5px 15px; font-size: 12px;" onclick="goTo('menu')">MENU</button>
     </div>
 
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
-        <button class="green-btn" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; font-size: 14px;" onclick="goTo('menu')">HOME</button>
-        
-        <div class="stat-display" id="v-count">0</div>
-        <div id="next-evo-tracker" style="color:var(--lime); margin-bottom:10px;">Next Evo: <span id="clicks-left">50</span></div>
+    <div class="main-area">
+        <div class="stat-main" id="v-count">0</div>
+        <div id="evo-text" style="color:var(--lime); font-size: 14px;">Next: <span id="clicks-left">50</span></div>
 
         <div id="turtle-wrapper" onclick="handleTurtleClick(event)">
             <div id="turtle-container">
@@ -131,21 +151,36 @@
             </div>
         </div>
         
-        <div style="font-size: 28px; color: var(--bright-green); margin-top: 20px;" id="stage-name">Character: Egg</div>
-    </div>
-
-    <div class="sidebar">
-        <h2 style="color:var(--lime); text-align:center;">STATS</h2>
-        <p>TOTAL AGE: <span id="age-num">0</span></p>
-        <p>V/SEC: <span id="vps">0</span></p>
-        <hr border="1" color="#14532d">
+        <div id="stage-name" style="color:var(--bright-green); margin-top:10px;">Egg</div>
         
-        <h3 style="color:var(--lime); text-align:center; margin-top:20px;">Music Control</h3>
-        <div style="display:flex; justify-content:center; gap:10px;">
-            <button class="green-btn music-btn" onclick="controlMusic('pause')">Pause</button>
-            <button class="green-btn music-btn" onclick="controlMusic('play')">Play</button>
+        <div style="margin-top: 15px;">
+            <button class="green-btn" style="padding:8px 15px; font-size:14px; background:#059669;" onclick="music('play')">♫ PLAY</button>
+            <button class="green-btn" style="padding:8px 15px; font-size:14px; background:#059669;" onclick="music('pause')">║ PAUSE</button>
         </div>
     </div>
+
+    <div class="bottom-shop">
+        <h3 style="margin: 0 0 10px 0; text-align:center; color:var(--lime);">UPGRADES</h3>
+        <div class="shop-item unlocked" onclick="buy('click')">
+            <span>LETTUCE</span>
+            <span class="green-btn" style="padding:5px 10px; font-size:14px;">$<span id="c-cost">10</span></span>
+        </div>
+        <div class="shop-item unlocked" onclick="buy('passive')">
+            <span>UV LIGHT</span>
+            <span class="green-btn" style="padding:5px 10px; font-size:14px;">$<span id="p-cost">50</span></span>
+        </div>
+        <div class="shop-item" id="upg-auto" onclick="buy('auto')">
+            <span>FRIEND</span>
+            <span class="green-btn" style="padding:5px 10px; font-size:14px;">$<span id="a-cost">2000</span></span>
+        </div>
+    </div>
+</div>
+
+<div id="owner-tab">
+    <h1>OWNER MODS</h1>
+    <button class="green-btn" onclick="vitality += 1000000; update();">ADD 1M VITALITY</button>
+    <br>
+    <button class="green-btn" style="background:#b91c1c" onclick="goTo('game')">EXIT</button>
 </div>
 
 <script>
@@ -156,25 +191,26 @@
     let costs = { click: 10, passive: 50, auto: 2000 };
 
     const characterData = [
-        { name: "Egg", goal: 0, type: 'svg', art: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="30" ry="40" fill="#fefce8" stroke="#ccc" stroke-width="2"/><path d="M40 30 Q50 20 60 30" fill="none" stroke="#ddd" stroke-width="1"/></svg>` },
+        { name: "Egg", goal: 0, type: 'svg', art: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="38" fill="#fefce8" stroke="#ccc" stroke-width="2"/></svg>` },
         { name: "Hatchling", goal: 50, type: 'img', art: `Untitled.png` },
-        { name: "Armor Shell", goal: 2500, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M20 60 Q50 10 80 60" fill="#14532d" stroke="#facc15" stroke-width="4"/><rect x="40" y="60" width="20" height="15" fill="#166534"/><circle cx="85" cy="55" r="12" fill="#166534" stroke="#facc15" stroke-width="2"/></svg>` },
-        { name: "Ancient Titan", goal: 15000, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M10 70 Q50 -10 90 70 Z" fill="#064e3b" stroke="#fbbf24" stroke-width="5"/><circle cx="50" cy="40" r="15" fill="none" stroke="#fbbf24" opacity="0.3"/><circle cx="92" cy="65" r="18" fill="#064e3b" stroke="#fbbf24" stroke-width="3"/></svg>` }
+        { name: "Iron Shell", goal: 5000, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M20 70 Q50 10 80 70" fill="#14532d" stroke="#facc15" stroke-width="4"/><circle cx="85" cy="65" r="12" fill="#166534" stroke="#facc15" stroke-width="2"/></svg>` },
+        { name: "God Turtle", goal: 50000, type: 'svg', art: `<svg viewBox="0 0 100 100"><path d="M10 75 Q50 -10 90 75 Z" fill="#064e3b" stroke="#fbbf24" stroke-width="5"/><circle cx="92" cy="70" r="18" fill="#064e3b" stroke="#fbbf24" stroke-width="3"/></svg>` }
     ];
 
     function handleTurtleClick(e) {
         vitality += clickPower;
         
+        // Mobile particle support
         const p = document.createElement('div');
         p.className = 'particle';
         p.innerText = "+" + clickPower;
-        p.style.left = e.clientX + 'px';
-        p.style.top = e.clientY + 'px';
+        p.style.left = (e.clientX || e.touches[0].clientX) + 'px';
+        p.style.top = (e.clientY || e.touches[0].clientY) + 'px';
         document.body.appendChild(p);
-        setTimeout(() => p.remove(), 800);
+        setTimeout(() => p.remove(), 600);
 
         document.getElementById('click-sfx').currentTime = 0;
-        document.getElementById('click-sfx').play().catch(() => {});
+        document.getElementById('click-sfx').play().catch(()=>{});
         update();
     }
 
@@ -183,7 +219,7 @@
             vitality -= costs[type];
             if(type === 'click') { clickPower += 2; costs.click *= 1.8; }
             else if(type === 'passive') { passivePower += 1; costs.passive *= 2; }
-            else { passivePower += 20; costs.auto *= 2.5; }
+            else { passivePower += 25; costs.auto *= 2.5; }
             update();
         }
     }
@@ -196,42 +232,47 @@
         document.getElementById('p-cost').innerText = Math.floor(costs.passive);
         document.getElementById('a-cost').innerText = Math.floor(costs.auto);
 
-        if(vitality >= 1500) document.getElementById('upg-auto').classList.add('unlocked');
+        if(vitality >= 1000) document.getElementById('upg-auto').classList.add('unlocked');
 
         for(let i=characterData.length-1; i>=0; i--) {
-            if(vitality >= characterData[i].goal) { 
-                currentStage = i; 
-                break; 
-            }
+            if(vitality >= characterData[i].goal) { currentStage = i; break; }
         }
 
-        let tracker = document.getElementById('next-evo-tracker');
+        let tracker = document.getElementById('evo-text');
         if(currentStage < characterData.length - 1) {
             let needed = characterData[currentStage + 1].goal - Math.floor(vitality);
             document.getElementById('clicks-left').innerText = Math.ceil(needed / clickPower);
-            tracker.style.display = "block";
         } else {
-            tracker.innerText = "MAX EVOLUTION"; 
+            tracker.innerText = "MAX FORM";
         }
 
         const artDiv = document.getElementById('turtle-art');
         const char = characterData[currentStage];
-        if(char.type === 'img') {
-            artDiv.innerHTML = `<img src="${char.art}" id="turtle-img">`;
-        } else {
-            artDiv.innerHTML = char.art;
-        }
-        document.getElementById('stage-name').innerText = "Character: " + char.name;
+        artDiv.innerHTML = (char.type === 'img') ? `<img src="${char.art}" style="width:100%; height:100%; object-fit:contain;">` : char.art;
+        document.getElementById('stage-name').innerText = char.name;
     }
 
     function goTo(scr) {
-        document.getElementById('home-menu').style.transform = (scr === 'game') ? 'translateY(-100%)' : 'translateY(0)';
-        if(scr === 'game') document.getElementById('bg-music').play().catch(() => {});
+        document.getElementById('home-menu').style.transform = (scr === 'game' || scr === 'owner') ? 'translateX(-100%)' : 'translateX(0)';
+        document.getElementById('owner-tab').style.right = (scr === 'owner') ? '0' : '-100%';
+        if(scr === 'game') document.getElementById('bg-music').play().catch(()=>{});
     }
 
-    function controlMusic(action) {
-        const music = document.getElementById('bg-music');
-        action === 'play' ? music.play() : music.pause();
+    function music(act) {
+        const m = document.getElementById('bg-music');
+        act === 'play' ? m.play() : m.pause();
+    }
+
+    function toggleCodes() {
+        const b = document.getElementById('code-box');
+        b.style.display = b.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function checkCode() {
+        if(document.getElementById('code-in').value.toUpperCase() === "OWNER123") {
+            document.getElementById('admin-entry').style.display = 'block';
+            toggleCodes();
+        }
     }
 
     setInterval(() => { if(passivePower > 0) { vitality += (passivePower / 10); update(); } }, 100);
