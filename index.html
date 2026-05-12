@@ -4,128 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TurtleClicker</title>
-    
-    <!-- FAVICON -->
     <link rel="icon" type="image/png" href="Untitled.png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
     <style>
         :root {
-            --dark-green: #064e3b;
-            --mid-green: #14532d;
-            --bright-green: #22c55e;
-            --lime: #a3e635;
-            --white: #f8fafc;
-            --gold: #facc15;
-            --ruby: #e11d48;
+            --dark-green: #064e3b; --mid-green: #14532d; --bright-green: #22c55e;
+            --lime: #a3e635; --white: #f8fafc; --gold: #facc15; --ruby: #e11d48;
         }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
-            font-family: 'Luckiest Guy', cursive;
-            background-color: var(--dark-green);
-            color: var(--white); overflow: hidden;
-            touch-action: manipulation;
-            user-select: none; /* Prevents annoying highlight boxes */
+            font-family: 'Luckiest Guy', cursive; background-color: var(--dark-green);
+            color: var(--white); overflow: hidden; touch-action: manipulation;
+            user-select: none;
         }
 
-        /* --- MENUS --- */
-        #home-menu {
+        /* --- DYNAMIC BACKGROUND --- */
+        #bg-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, var(--mid-green) 0%, var(--dark-green) 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 1000; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(to bottom, #064e3b, #022c22);
+            z-index: -1;
         }
 
-        /* --- GAME LAYOUT --- */
-        #game-screen {
-            display: flex; flex-direction: column; 
-            width: 100vw; height: 100vh;
-            background: #022c22;
+        .bubble {
+            position: absolute; background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%; pointer-events: none;
+            animation: rise linear infinite;
         }
 
-        .header-stats {
-            background: rgba(0,0,0,0.6); padding: 12px;
+        @keyframes rise {
+            from { transform: translateY(110vh); }
+            to { transform: translateY(-20vh); }
+        }
+
+        /* --- LAYOUT --- */
+        #game-container {
+            display: flex; flex-direction: column; width: 100vw; height: 100vh;
+        }
+
+        .top-bar {
+            height: 12%; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px);
             display: flex; justify-content: space-around; align-items: center;
-            border-bottom: 4px solid var(--mid-green);
-            z-index: 20;
+            border-bottom: 3px solid var(--mid-green); z-index: 100;
         }
 
-        .main-area {
+        .hero-section {
             flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            position: relative;
+            align-items: center; justify-content: center; position: relative;
         }
 
-        .bottom-shop {
-            height: 40%; background: rgba(0,0,0,0.85);
-            border-top: 4px solid var(--mid-green);
+        .shop-drawer {
+            height: 38%; background: rgba(0,0,0,0.8);
+            border-top: 5px solid var(--bright-green);
             display: flex; flex-direction: column; padding: 15px;
-            overflow-y: scroll;
+            overflow-y: auto; border-radius: 25px 25px 0 0;
         }
 
-        /* --- BUTTONS & UI --- */
-        .green-btn {
-            padding: 12px 24px; font-size: 18px; font-family: 'Luckiest Guy';
-            background: var(--bright-green); color: white;
-            border: 3px solid var(--white); border-radius: 30px;
-            cursor: pointer; box-shadow: 0 5px 0 var(--dark-green);
-            text-transform: uppercase;
-        }
-        .green-btn:active { transform: scale(0.95) translateY(2px); box-shadow: 0 2px 0 var(--dark-green); }
-
-        .music-ctrl { background: #059669; border-radius: 15px; padding: 8px 16px; font-size: 14px; }
-
-        /* --- TURTLE & CLICKING --- */
-        #turtle-wrapper {
-            width: 340px; height: 340px;
+        /* --- THE TURTLE / EGG --- */
+        #turtle-anchor {
+            width: 320px; height: 320px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; position: relative; z-index: 50;
-            -webkit-tap-highlight-color: transparent;
+            position: relative; transition: transform 0.1s;
         }
 
-        #turtle-container {
-            width: 100%; height: 100%;
-            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
+        #turtle-anchor:active { transform: scale(0.9); }
+
+        .egg-glow {
+            position: absolute; width: 100%; height: 100%;
+            background: radial-gradient(circle, var(--lime) 0%, transparent 70%);
+            opacity: 0.2; animation: pulse 2s infinite ease-in-out;
         }
-        #turtle-wrapper:active #turtle-container { transform: scale(0.85); }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.2; }
+            50% { transform: scale(1.2); opacity: 0.4; }
+        }
+
+        /* --- INTERACTIVE BUTTONS --- */
+        .green-btn {
+            padding: 10px 20px; font-size: 16px; font-family: 'Luckiest Guy';
+            background: var(--bright-green); color: white;
+            border: 3px solid var(--white); border-radius: 20px;
+            box-shadow: 0 4px 0 var(--dark-green); cursor: pointer;
+        }
+        .green-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--dark-green); }
+
+        .shop-card {
+            display: none; background: #065f46; padding: 15px;
+            margin-bottom: 10px; border-radius: 20px; border: 2px solid var(--lime);
+            justify-content: space-between; align-items: center;
+        }
+        .shop-card.visible { display: flex; }
 
         .particle {
-            position: absolute; pointer-events: none;
-            color: var(--lime); font-size: 32px;
-            animation: float-up 0.7s ease-out forwards;
-            text-shadow: 2px 2px 0 #000; z-index: 100;
+            position: absolute; pointer-events: none; color: var(--lime);
+            font-size: 35px; text-shadow: 2px 2px 0 #000;
+            animation: fly-out 0.8s ease-out forwards; z-index: 200;
         }
 
-        @keyframes float-up {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
+        @keyframes fly-out {
+            to { transform: translateY(-150px) rotate(20deg); opacity: 0; }
         }
 
-        /* --- SHOP ITEMS --- */
-        .shop-category { font-size: 14px; color: var(--gold); margin: 10px 0 5px; border-bottom: 1px solid #333; }
-        
-        .shop-item {
-            display: none; background: #064e3b; padding: 14px;
-            margin-bottom: 10px; border-radius: 18px; border: 2px solid var(--bright-green);
-            justify-content: space-between; align-items: center;
-            transition: background 0.2s;
-        }
-        .shop-item.unlocked { display: flex; }
-        .shop-item:active { background: #14532d; }
-
-        .item-info { display: flex; flex-direction: column; }
-        .item-title { font-size: 18px; color: var(--white); }
-        .item-desc { font-size: 12px; color: var(--lime); opacity: 0.8; }
-
-        #admin-panel {
-            position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
-            background: #020617; z-index: 2000;
+        #menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 44, 34, 0.95); z-index: 1000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.5s;
         }
-
     </style>
 </head>
 <body>
@@ -133,253 +118,161 @@
 <audio id="bg-music" src="music.mp3" loop></audio>
 <audio id="click-sfx" src="click.mp3"></audio>
 
-<div id="home-menu">
-    <h1 style="font-size: 60px; color: var(--lime); text-shadow: 4px 4px 0 #000; margin-bottom: 30px;">TurtleClicker</h1>
-    <div style="display:flex; flex-direction:column; gap:15px; width: 200px;">
-        <button class="green-btn" onclick="goTo('game')">PLAY</button>
-        <button class="green-btn" style="font-size: 12px;" onclick="toggleCodes()">ENTER CODE</button>
-        <div id="code-ui" style="display:none;">
-            <input type="text" id="code-input" style="width:100%; padding:10px; border-radius:10px; border:none; text-align:center;" placeholder="...">
-            <button class="green-btn" style="width:100%; margin-top:5px; padding:5px;" onclick="submitCode()">OK</button>
-        </div>
-        <button id="owner-access" class="green-btn" style="display:none; border-color:var(--gold);" onclick="goTo('admin')">OWNER MENU</button>
-    </div>
+<div id="menu-overlay">
+    <h1 style="font-size: 60px; color: var(--lime); text-shadow: 4px 4px 0 #000;">TurtleClicker</h1>
+    <button class="green-btn" style="font-size: 30px; padding: 15px 50px;" onclick="startGame()">START</button>
 </div>
 
-<div id="game-screen">
-    <div class="header-stats">
-        <div>V/SEC: <span id="vps-display" style="color:var(--lime)">0</span></div>
-        <div>AGE: <span id="age-display" style="color:var(--gold)">0</span></div>
-        <button class="green-btn" style="padding: 5px 12px; font-size: 12px;" onclick="goTo('menu')">MENU</button>
+<div id="game-container">
+    <div id="bg-canvas"></div>
+
+    <div class="top-bar">
+        <div>V/SEC: <span id="vps-text" style="color:var(--lime)">0</span></div>
+        <div>AGE: <span id="age-text" style="color:var(--gold)">0</span></div>
+        <button class="green-btn" style="padding: 5px 15px;" onclick="location.reload()">RELOAD</button>
     </div>
 
-    <div class="main-area">
-        <div style="font-size: 55px; color: var(--lime); text-shadow: 4px 4px 0 #000; margin-bottom: 5px;" id="vitality-display">0</div>
-        <div id="evo-progress" style="color:var(--white); font-size: 14px; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 10px;">
-            Next Evolution: <span id="clicks-needed" style="color:var(--lime)">50</span> clicks
-        </div>
+    <div class="hero-section">
+        <div style="font-size: 55px; color: var(--white); text-shadow: 4px 4px 0 #000;" id="vitality-text">0</div>
+        <div id="evo-hint" style="color:var(--lime); margin-bottom: 10px;">Next Evo: <span id="clicks-rem">50</span></div>
 
-        <div id="turtle-wrapper" onclick="handleInteraction(event)">
-            <div id="turtle-container">
-                <div id="turtle-sprite" style="width:100%; height:100%;"></div>
-            </div>
+        <div id="turtle-anchor" onclick="clickTurtle(event)">
+            <div class="egg-glow"></div>
+            <div id="turtle-view" style="width:100%; height:100%; z-index:5;"></div>
         </div>
         
-        <div id="rank-display" style="color:var(--bright-green); font-size: 24px; margin-top: 15px;">Stage: Egg</div>
+        <div id="stage-label" style="font-size: 24px; color: var(--lime); margin-top: 10px;">Egg</div>
         
         <div style="margin-top: 20px; display: flex; gap: 15px;">
-            <button class="green-btn music-ctrl" onclick="handleMusic('play')">▶ PLAY</button>
-            <button class="green-btn music-ctrl" onclick="handleMusic('pause')">⏸ PAUSE</button>
+            <button class="green-btn" style="background:#059669" onclick="musicCtrl('play')">▶ PLAY</button>
+            <button class="green-btn" style="background:#059669" onclick="musicCtrl('pause')">⏸ PAUSE</button>
         </div>
     </div>
 
-    <div class="bottom-shop">
-        <div class="shop-category">FOOD & ENERGY</div>
-        <div class="shop-item unlocked" onclick="purchase('lettuce')">
-            <div class="item-info">
-                <span class="item-title">🥬 Organic Lettuce</span>
-                <span class="item-desc">+1 Click Power</span>
-            </div>
-            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-lettuce">10</span></span>
-        </div>
-        <div class="shop-item unlocked" onclick="purchase('strawberry')">
-            <div class="item-info">
-                <span class="item-title">🍓 Fresh Strawberry</span>
-                <span class="item-desc">+8 Click Power</span>
-            </div>
-            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-strawberry">200</span></span>
-        </div>
-        <div class="shop-item" id="item-melon" onclick="purchase('melon')">
-            <div class="item-info">
-                <span class="item-title">🍉 Sweet Melon</span>
-                <span class="item-desc">+50 Click Power</span>
-            </div>
-            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-melon">1500</span></span>
-        </div>
-
-        <div class="shop-category">ENVIRONMENT</div>
-        <div class="shop-item unlocked" onclick="purchase('uv')">
-            <div class="item-info">
-                <span class="item-title">💡 UV Habitat Lamp</span>
-                <span class="item-desc">+2 Vitality / Sec</span>
-            </div>
-            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-uv">100</span></span>
-        </div>
-        <div class="shop-item" id="item-filter" onclick="purchase('filter')">
-            <div class="item-info">
-                <span class="item-title">💧 Water Filter</span>
-                <span class="item-desc">+15 Vitality / Sec</span>
-            </div>
-            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-filter">750</span></span>
-        </div>
+    <div class="shop-drawer">
+        <h2 style="margin: 0 0 15px 0; color: var(--gold); text-align: center;">SHOP & FOOD</h2>
         
-        <div class="shop-category">COMPANIONS</div>
-        <div class="shop-item" id="item-friend" onclick="purchase('friend')">
-            <div class="item-info">
-                <span class="item-title">🐢 Turtle Friend</span>
-                <span class="item-desc">+100 Vitality / Sec</span>
-            </div>
-            <span class="green-btn" style="padding:8px 15px; font-size:14px;">$<span id="cost-friend">5000</span></span>
+        <div class="shop-card visible" onclick="buyItem('lettuce')">
+            <div><span style="font-size:20px;">🥬 Lettuce</span><br><small>+1 Click Power</small></div>
+            <div class="green-btn">$<span id="price-lettuce">10</span></div>
+        </div>
+
+        <div class="shop-card visible" onclick="buyItem('uv')">
+            <div><span style="font-size:20px;">💡 UV Lamp</span><br><small>+2 Vitality/Sec</small></div>
+            <div class="green-btn">$<span id="price-uv">100</span></div>
+        </div>
+
+        <div id="item-berry" class="shop-card" onclick="buyItem('berry')">
+            <div><span style="font-size:20px;">🍓 Dragon Fruit</span><br><small>+15 Click Power</small></div>
+            <div class="green-btn">$<span id="price-berry">1000</span></div>
+        </div>
+
+        <div id="item-apple" class="shop-card" onclick="buyItem('apple')">
+            <div><span style="font-size:20px;">🍎 Golden Apple</span><br><small>+100 Click Power</small></div>
+            <div class="green-btn">$<span id="price-apple">8000</span></div>
+        </div>
+
+        <div id="item-friend" class="shop-card" onclick="buyItem('friend')">
+            <div><span style="font-size:20px;">🐢 Best Friend</span><br><small>+150 Vitality/Sec</small></div>
+            <div class="green-btn">$<span id="price-friend">15000</span></div>
         </div>
     </div>
-</div>
-
-<div id="admin-panel">
-    <h1 style="color:var(--gold)">ADMIN CONSOLE</h1>
-    <button class="green-btn" onclick="cheatVitality()">+1M VITALITY</button>
-    <br>
-    <button class="green-btn" style="background:var(--ruby)" onclick="goTo('game')">BACK TO GAME</button>
 </div>
 
 <script>
-    // --- GAME STATE ---
-    let state = {
-        vitality: 0,
-        clickPower: 1,
-        passiveIncome: 0,
-        stageIndex: 0,
-        costs: {
-            lettuce: 10,
-            strawberry: 200,
-            melon: 1500,
-            uv: 100,
-            filter: 750,
-            friend: 5000
-        }
+    let g = {
+        vitality: 0, clickP: 1, vps: 0, stage: 0,
+        prices: { lettuce: 10, uv: 100, berry: 1000, apple: 8000, friend: 15000 }
     };
 
-    const evolutions = [
-        { name: "Egg", req: 0, type: 'svg', data: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="38" ry="46" fill="#fffde7" stroke="#e0e0e0" stroke-width="2"/></svg>` },
-        { name: "Hatchling", req: 50, type: 'img', data: `Untitled.png` },
-        { name: "Juvenile", req: 2500, type: 'svg', data: `<svg viewBox="0 0 100 100"><path d="M20 70 Q50 15 80 70" fill="#14532d" stroke="#a3e635" stroke-width="3"/><circle cx="85" cy="62" r="14" fill="#166534" stroke="#a3e635" stroke-width="2"/></svg>` },
-        { name: "Ancient", req: 20000, type: 'svg', data: `<svg viewBox="0 0 100 100"><path d="M10 75 Q50 -10 90 75 Z" fill="#064e3b" stroke="#fbbf24" stroke-width="5"/><circle cx="92" cy="68" r="18" fill="#064e3b" stroke="#fbbf24" stroke-width="3"/><path d="M30 40 Q50 30 70 40" stroke="#fbbf24" fill="none" opacity="0.4"/></svg>` }
+    const evos = [
+        { name: "Egg", goal: 0, type: 'svg', content: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="35" ry="45" fill="#fefce8" stroke="#ccc" stroke-width="2"/></svg>` },
+        { name: "Hatchling", goal: 50, type: 'img', content: `Untitled.png` },
+        { name: "Shell Guard", goal: 5000, type: 'svg', content: `<svg viewBox="0 0 100 100"><path d="M15 65 Q50 10 85 65" fill="#14532d" stroke="#a3e635" stroke-width="4"/><circle cx="88" cy="60" r="14" fill="#166534" stroke="#a3e635" stroke-width="2"/></svg>` },
+        { name: "Ocean Titan", goal: 50000, type: 'svg', content: `<svg viewBox="0 0 100 100"><path d="M5 70 Q50 -20 95 70 Z" fill="#064e3b" stroke="#fbbf24" stroke-width="5"/><circle cx="95" cy="65" r="18" fill="#064e3b" stroke="#fbbf24" stroke-width="3"/></svg>` }
     ];
 
-    // --- CORE LOGIC ---
-    function handleInteraction(e) {
-        state.vitality += state.clickPower;
-        spawnParticle(e);
-        playSound('click-sfx');
-        refreshUI();
+    function createBubbles() {
+        const bg = document.getElementById('bg-canvas');
+        for(let i=0; i<15; i++) {
+            let b = document.createElement('div'); b.className = 'bubble';
+            let size = Math.random()*40 + 10;
+            b.style.width = b.style.height = size + 'px';
+            b.style.left = Math.random()*100 + 'vw';
+            b.style.animationDuration = (Math.random()*5 + 5) + 's';
+            b.style.animationDelay = Math.random()*5 + 's';
+            bg.appendChild(b);
+        }
     }
 
-    function spawnParticle(e) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.innerText = "+" + state.clickPower;
-        const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-        const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-        p.style.left = x + 'px';
-        p.style.top = y + 'px';
+    function clickTurtle(e) {
+        g.vitality += g.clickP;
+        let p = document.createElement('div');
+        p.className = 'particle'; p.innerText = "+" + g.clickP;
+        p.style.left = (e.clientX || e.touches[0].clientX) + 'px';
+        p.style.top = (e.clientY || e.touches[0].clientY) + 'px';
         document.body.appendChild(p);
         setTimeout(() => p.remove(), 700);
+        document.getElementById('click-sfx').currentTime = 0;
+        document.getElementById('click-sfx').play().catch(()=>{});
+        updateUI();
     }
 
-    function purchase(id) {
-        if (state.vitality >= state.costs[id]) {
-            state.vitality -= state.costs[id];
-            
-            if (id === 'lettuce') { state.clickPower += 1; state.costs.lettuce *= 1.6; }
-            else if (id === 'strawberry') { state.clickPower += 8; state.costs.strawberry *= 1.8; }
-            else if (id === 'melon') { state.clickPower += 50; state.costs.melon *= 2; }
-            else if (id === 'uv') { state.passiveIncome += 2; state.costs.uv *= 1.7; }
-            else if (id === 'filter') { state.passiveIncome += 15; state.costs.filter *= 1.9; }
-            else if (id === 'friend') { state.passiveIncome += 100; state.costs.friend *= 2.2; }
-            
-            refreshUI();
+    function buyItem(id) {
+        if(g.vitality >= g.prices[id]) {
+            g.vitality -= g.prices[id];
+            if(id === 'lettuce') { g.clickP += 1; g.prices.lettuce *= 1.6; }
+            else if(id === 'uv') { g.vps += 2; g.prices.uv *= 1.8; }
+            else if(id === 'berry') { g.clickP += 15; g.prices.berry *= 2; }
+            else if(id === 'apple') { g.clickP += 100; g.prices.apple *= 2.2; }
+            else if(id === 'friend') { g.vps += 150; g.prices.friend *= 2.5; }
+            updateUI();
         }
     }
 
-    function refreshUI() {
-        // Stats
-        document.getElementById('vitality-display').innerText = Math.floor(state.vitality).toLocaleString();
-        document.getElementById('vps-display').innerText = state.passiveIncome;
-        document.getElementById('age-display').innerText = Math.floor(state.vitality / 100);
+    function updateUI() {
+        document.getElementById('vitality-text').innerText = Math.floor(g.vitality).toLocaleString();
+        document.getElementById('vps-text').innerText = g.vps;
+        document.getElementById('age-text').innerText = Math.floor(g.vitality/100);
         
-        // Costs
-        for (const [key, val] of Object.entries(state.costs)) {
-            const el = document.getElementById('cost-' + key);
-            if (el) el.innerText = Math.floor(val).toLocaleString();
+        for(let key in g.prices) {
+            let el = document.getElementById('price-' + key);
+            if(el) el.innerText = Math.floor(g.prices[key]).toLocaleString();
         }
 
-        // Visibility Logic
-        if (state.vitality >= 500) document.getElementById('item-melon').classList.add('unlocked');
-        if (state.vitality >= 250) document.getElementById('item-filter').classList.add('unlocked');
-        if (state.vitality >= 1500) document.getElementById('item-friend').classList.add('unlocked');
+        if(g.vitality >= 800) document.getElementById('item-berry').classList.add('visible');
+        if(g.vitality >= 5000) document.getElementById('item-apple').classList.add('visible');
+        if(g.vitality >= 10000) document.getElementById('item-friend').classList.add('visible');
 
-        // Evolutions
-        let nextStage = 0;
-        for (let i = evolutions.length - 1; i >= 0; i--) {
-            if (state.vitality >= evolutions[i].req) {
-                nextStage = i;
-                break;
-            }
+        let next = 0;
+        for(let i=evos.length-1; i>=0; i--) { if(g.vitality >= evos[i].goal) { next = i; break; } }
+
+        if(next !== g.stage) {
+            g.stage = next;
+            let view = document.getElementById('turtle-view');
+            view.innerHTML = (evos[g.stage].type === 'img') ? `<img src="${evos[g.stage].content}" style="width:100%;height:100%;object-fit:contain;">` : evos[g.stage].content;
+            document.getElementById('stage-label').innerText = evos[g.stage].name;
         }
 
-        if (nextStage !== state.stageIndex) {
-            state.stageIndex = nextStage;
-            const sprite = document.getElementById('turtle-sprite');
-            const data = evolutions[state.stageIndex];
-            sprite.innerHTML = (data.type === 'img') ? `<img src="${data.data}" style="width:100%; height:100%; object-fit:contain;">` : data.data;
-            document.getElementById('rank-display').innerText = "Stage: " + data.name;
-        }
-
-        // Progress Tracker
-        const tracker = document.getElementById('evo-progress');
-        if (state.stageIndex < evolutions.length - 1) {
-            const diff = evolutions[state.stageIndex + 1].req - Math.floor(state.vitality);
-            document.getElementById('clicks-needed').innerText = Math.ceil(diff / state.clickPower);
-        } else {
-            tracker.innerHTML = "FINAL FORM REACHED";
-        }
+        let hint = document.getElementById('evo-hint');
+        if(g.stage < evos.length - 1) {
+            let diff = evos[g.stage+1].goal - Math.floor(g.vitality);
+            document.getElementById('clicks-rem').innerText = Math.ceil(diff/g.clickP);
+        } else { hint.innerText = "MAX FORM REACHED"; }
     }
 
-    // --- SYSTEMS ---
-    function goTo(scr) {
-        const home = document.getElementById('home-menu');
-        const admin = document.getElementById('admin-panel');
-        
-        if (scr === 'game') { home.style.transform = 'translateY(-100%)'; admin.style.right = '-100%'; }
-        else if (scr === 'admin') { admin.style.right = '0'; }
-        else { home.style.transform = 'translateY(0)'; }
+    function startGame() {
+        document.getElementById('menu-overlay').style.display = 'none';
+        document.getElementById('bg-music').play().catch(()=>{});
+        updateUI(); // Force initial egg render
     }
 
-    function toggleCodes() {
-        const ui = document.getElementById('code-ui');
-        ui.style.display = (ui.style.display === 'none') ? 'block' : 'none';
-    }
+    function musicCtrl(a) { let m = document.getElementById('bg-music'); a === 'play' ? m.play() : m.pause(); }
 
-    function submitCode() {
-        const val = document.getElementById('code-input').value.toUpperCase();
-        if (val === "OWNER123") {
-            document.getElementById('owner-access').style.display = 'block';
-            toggleCodes();
-        }
-    }
-
-    function cheatVitality() { state.vitality += 1000000; refreshUI(); }
-
-    function handleMusic(action) {
-        const m = document.getElementById('bg-music');
-        (action === 'play') ? m.play().catch(()=>{}) : m.pause();
-    }
-
-    function playSound(id) {
-        const s = document.getElementById(id);
-        s.currentTime = 0;
-        s.play().catch(()=>{});
-    }
-
-    // Tick system (10 times per second)
-    setInterval(() => {
-        if (state.passiveIncome > 0) {
-            state.vitality += (state.passiveIncome / 10);
-            refreshUI();
-        }
-    }, 100);
-
-    // Initial Render
-    refreshUI();
+    createBubbles();
+    setInterval(() => { if(g.vps > 0) { g.vitality += (g.vps / 10); updateUI(); } }, 100);
+    // Initial UI call to ensure Egg shows up immediately
+    updateUI();
 </script>
 </body>
 </html>
